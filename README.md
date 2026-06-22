@@ -81,6 +81,8 @@ Download the latest compilation by clicking [here](https://github.com/ElektroStu
 
 Also, you can read a manual in HTML format by clicking [here](https://htmlpreview.github.io/?https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/blob/main/Source/BT4G%20Scraper/manual/BT4G%20Torrent%20Magnet%20Scraper%20Manual.html).
 
+Note: A **# Porn Preset.zip** file is included for my own convenience containing personal configuration that I've used in the past, though you will need to customize it to your own preferences.
+
 ## 💡 Performance Recommendation
 
 To significantly optimize the page loading speed and reduce bandwidth consumption when accessing the bt4g website, it is **highly recommended** to install/load the **[uBlock Origin Lite](https://chromewebstore.google.com/detail/ublock-origin-lite/ddkjiahejlhfcafbddmgiahcphecmpfh)** extension in the Chrome browser instance. By actively blocking unwanted ads, trackers, and heavy background scripts, the scraping process becomes drastically faster and much more stable.
