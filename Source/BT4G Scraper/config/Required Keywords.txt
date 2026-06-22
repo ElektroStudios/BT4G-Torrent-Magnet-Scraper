@@ -1,0 +1,29 @@
+﻿# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                           #
+# The list of keywords used to filter wanted results.       #
+#                                                           #
+# If any of these keywords are present in the torrent name, #
+# it will be processed; Otherwise, it will be skipped.      #
+#                                                           #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# -----------------
+# Video resolutions
+# -----------------
+1080
+1920
+2160
+3840
+4 k
+4+k
+4-k
+4.k
+4_k
+4k
+fhd
+full hd
+full+hd
+full-hd
+full.hd
+full_hd
+fullhd

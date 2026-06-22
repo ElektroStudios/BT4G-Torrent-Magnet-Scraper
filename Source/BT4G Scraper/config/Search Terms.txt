@@ -1,0 +1,12 @@
+﻿# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                       #
+# The list of search terms to query on BT4G website. One term per line. #
+#                                                                       #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# Example Movie names:
+
+John Wick
+John Wick 2
+John Wick 3
+John Wick 4

@@ -1,0 +1,44 @@
+﻿# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                           #
+# The list of keywords used to filter out unwanted results. #
+#                                                           #
+# If any of these keywords are present in the torrent name, #
+# it will be skipped, regardless of "Required Keywords.txt" #
+#                                                           #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# -----------------
+# Video resolutions
+# -----------------
+240p
+360p
+480p
+720p
+960p
+ sd
++sd
+-sd
+.sd
+_sd
+[sd
+
+# ------------
+# File formats
+# ------------
+.3g2
+.3gp
+.asf
+.avi
+.flv
+.m1v
+.m2ts
+.m2v
+.mpeg
+.mpg
+.ogm
+.ogv
+.qt
+.ts
+.webm
+.wma
+.wmv

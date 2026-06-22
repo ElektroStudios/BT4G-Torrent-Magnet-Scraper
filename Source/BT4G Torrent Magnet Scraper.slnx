@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="BT4G Scraper/BT4G Torrent Magnet Scraper.vbproj" Id="19cab10d-3e85-42f6-bf7c-597f97ab06b5">
+    <Platform Project="x64" />
+  </Project>
+</Solution>

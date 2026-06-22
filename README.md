@@ -20,38 +20,44 @@ windows-forms
 winforms 
  -->
 
-# PROJECT NAME
+# BT4G Torrent Magnet Scraper
 
-### PROJECT DESCRIPTION
+### AN interactive command-line torrent magnet scraper for https://bt4gprx.com/ with automated keyword filtering.
 
 ------------------
 
 ## 👋 Introduction
 
-INTRODUCTION TEXT
+**BT4G Torrent Magnet Scraper** is an automated command-line tool developed in VB.NET for .NET Framework 4.8. It is designed to programmatically query the https://bt4gprx.com/ search engine, parse the HTML responses, and extract torrent magnet URIs. The application streamlines bulk scraping workflows through a strict text-based keyword filtering system, ensuring you only gather the exact magnet links you need while automatically discarding unwanted results.
+
+The program runs Selenium in the background to launch and automate a Chrome browser instance.
 
 ## 👌 Features
 
-FEATURES TEXT
-
+* **Sequential Bulk Querying:** Processes multiple search terms automatically from a structured input list.
+* **Smart Four-File Filtering:**
+  * `.\Config\Search Terms.txt`: Defines the target queries to execute on the website (one per line).
+  * `.\Config\Required Keywords.txt`: Validates results against a whitelist; unmatched items are automatically skipped.
+  * `.\Config\Forbidden Keywords.txt`: Blacklists unwanted terms, instantly dropping matching torrents even if they satisfy the required criteria.
+  * `.\Config\Query Additional Parameters.txt`: Appends custom HTTP GET URL parameters (such as `category=movie` or `orderby=seeders`) to filter and sort results directly on the server side.
+  
 ## 🖼️ Screenshots
 
-![screenshot](/Images/screenshot.png)
+![screenshot](/Images/screenshot1.png)
 
 ## 🎦 Videos
 
-<!-- Download a recorded video by clicking [here](/Video/video.mp4) -->
-
-<!-- See a recorded video by clicking on the following button:
-[![PROJECT_NAME DEMO VIDEO](Images/demo_video.jpg)](https://www.youtube.com/watch?v=XXXXXXXXX)  -->
+[BT4G Torrent Magnet Scraper demo.mp4](https://github.com/user-attachments/assets/6693987c-c059-4955-ae73-6b1d91cdacbe)
 
 ## 📝 Requirements
 
-- Microsoft Windows OS.
+- Microsoft Windows OS (64-Bit).
 
 ## 🤖 Getting Started
 
-Download the latest compilation by clicking [here](https://github.com/ElektroStudios/PROJECT_NAME/releases/latest).
+Download the latest compilation by clicking [here](https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/releases/latest) and start using it.
+
+Also, you can read a manual in HTML format by clicking [here](/Source/BT4G%20Scraper/manual/BT4G%20Torrent%20Magnet%20Scraper%20Manual.html).
 
 ## 🔄 Change Log
 
@@ -62,6 +68,9 @@ Explore the complete list of changes, bug fixes, and improvements across differe
 This work relies on the following resources: 
 
  - [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+ - [Selenium.WebDriver](https://www.nuget.org/packages/selenium.webdriver)
+ - [HtmlAgilityPack](https://www.nuget.org/packages/HtmlAgilityPack)
+ - [DevCase](https://github.com/ElektroStudios/DevCase.github.io)
 
 ## ⚠️ Disclaimer:
 
@@ -71,7 +80,7 @@ This Work has no affiliation, approval or endorsement by the author(s) of the th
 
 ## 💪 Contributing
 
-Your contribution is highly appreciated!. If you have any ideas, suggestions, or encounter issues, feel free to open an issue by clicking [here](https://github.com/ElektroStudios/PROJECT_NAME/issues/new/choose). 
+Your contribution is highly appreciated!. If you have any ideas, suggestions, or encounter issues, feel free to open an issue by clicking [here](https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/issues/new/choose). 
 
 Your input helps make this Work better for everyone. Thank you for your support! 🚀
 

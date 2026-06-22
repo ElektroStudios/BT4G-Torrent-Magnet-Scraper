@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BT4G Torrent Magnet Scraper — User Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /*
+   * ┌─────────────────────────────────────────────────────────┐
+   * │  COLOR GUIDE — edit these variables to change the theme │
+   * │                                                         │
+   * │  Background levels (darkest → lightest):                │
+   * │    --bg      main page background                       │
+   * │    --bg2     slightly lighter bg (currently unused)     │
+   * │    --bg3     table headers, flow nodes                  │
+   * │    --panel   cards, step rows, FAQ items                │
+   * │                                                         │
+   * │  Borders:                                               │
+   * │    --border  subtle borders                             │
+   * │    --border2 slightly more visible borders              │
+   * │                                                         │
+   * │  Accents (change these to repaint the whole theme):     │
+   * │    --accent  cyan  — primary highlight color            │
+   * │    --accent3 orange — code-block left border            │
+   * │    --accent4 purple — FAQ hover / arrow                 │
+   * │    --success green  — "required" elements               │
+   * │    --danger  red    — "forbidden" elements              │
+   * │    --warning amber  — warning callouts                  │
+   * │                                                         │
+   * │  Text levels (brightest → most muted):                  │
+   * │    --text    main body text                             │
+   * │    --text2   secondary / description text               │
+   * │    --text3   hints, labels, comments                    │
+   * └─────────────────────────────────────────────────────────┘
+   */
+  :root {
+    --bg:        #171d25;
+    --bg2:       #1c2230;
+    --bg3:       #1f2633;
+    --panel:     #1c2330;
+    --border:    #28394d;
+    --border2:   #324455;
+    --accent:    #00e5ff;
+    --accent2:   #00ff88;
+    --accent3:   #ff6b35;
+    --accent4:   #c678dd;
+    --text:      #d4e1f0;
+    --text2:     #8aa4be;
+    --text3:     #556b82;
+    --warning:   #ffb347;
+    --danger:    #ff5370;
+    --success:   #00ff88;
+    --glow:      0 0 20px rgba(0,229,255,0.15);
+    --glow2:     0 0 40px rgba(0,229,255,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── ANIMATED GRID BACKGROUND ─── */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HERO HEADER ─── */
+  .hero {
+    position: relative;
+    padding: 80px 40px 60px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 52px);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    animation: fadeDown 0.7s ease both 0.1s;
+  }
+
+  .hero h1 span.hi { color: var(--accent); }
+  .hero h1 span.lo { color: var(--text2); font-weight: 300; }
+
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--text3);
+    margin-top: 16px;
+    letter-spacing: 1px;
+    animation: fadeDown 0.7s ease both 0.2s;
+  }
+
+  /* ─── LANG TOGGLE ─── */
+  .lang-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(23,29,37,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 12px 20px;
+  }
+
+  .lang-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 28px;
+    background: transparent;
+    color: var(--text3);
+    border: 1px solid var(--border2);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+  }
+
+  .lang-btn:first-child { border-radius: 3px 0 0 3px; }
+  .lang-btn:last-child  { border-radius: 0 3px 3px 0; border-left: none; }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 0 20px rgba(0,229,255,0.35);
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── LANG PANELS ─── */
+  .lang-panel { display: none; }
+  .lang-panel.active { display: block; }
+
+  /* ─── SECTION ─── */
+  .section {
+    margin-top: 56px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border2), transparent);
+  }
+
+  .section h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .section p {
+    color: var(--text2);
+    font-size: 18px;
+    margin-bottom: 14px;
+    line-height: 1.75;
+  }
+
+  /* ─── STEP CARDS ─── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 24px;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    transition: border-color 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .step:hover {
+    border-left-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,229,255,0.03) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .step:hover::before { opacity: 1; }
+
+  .step-num {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 22px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--border2);
+    transition: color 0.3s;
+  }
+
+  .step:hover .step-num { color: var(--accent); }
+
+  .step-body {
+    padding: 18px 24px 18px 0;
+    user-select: text;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    margin-bottom: 6px;
+    user-select: text;
+  }
+
+  .step-desc {
+    font-size: 18px;
+    color: var(--text2);
+    line-height: 1.65;
+    user-select: text;
+  }
+
+  /* ─── FILE CARDS ─── */
+  .file-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .file-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  }
+
+  .file-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), var(--glow2);
+  }
+
+  .file-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .file-card.search::after  { background: var(--accent); }
+  .file-card.forbid::after  { background: var(--danger); }
+  .file-card.require::after { background: var(--success); }
+
+  .file-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+  }
+
+  .file-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    word-break: break-all;
+  }
+
+  .file-card.forbid .file-name  { color: var(--danger); }
+  .file-card.require .file-name { color: var(--success); }
+
+  .file-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .file-card p {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+
+  /* ─── CODE / EXAMPLE BLOCKS ─── */
+  .code-block {
+    background: #111820;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 3px;
+    padding: 20px 24px;
+    margin: 18px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    line-height: 1.8;
+    overflow-x: auto;
+    position: relative;
+    white-space: pre-line;
+  }
+
+  .code-block .comment { color: var(--text3); }
+  .code-block .keyword { color: var(--accent4); }
+  .code-block .value   { color: var(--warning); }
+
+  .code-label {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    top: 8px; right: 12px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+
+  /* ─── ALERTS / CALLOUTS ─── */
+  .callout {
+    display: flex;
+    gap: 16px;
+    padding: 18px 22px;
+    border-radius: 3px;
+    margin: 20px 0;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .callout-icon { font-size: 20px; flex-shrink: 0; padding-top: 1px; }
+
+  .callout.info    { background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.2); color: var(--text2); }
+  .callout.warning { background: rgba(255,179,71,0.06); border: 1px solid rgba(255,179,71,0.25); color: var(--text2); }
+  .callout.tip     { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2); color: var(--text2); }
+  .callout.danger  { background: rgba(255,83,112,0.06); border: 1px solid rgba(255,83,112,0.2); color: var(--text2); }
+
+  /* ─── FLOW DIAGRAM ─── */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 28px 0;
+    padding: 28px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .flow-node {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    text-align: center;
+    min-width: 110px;
+    transition: all 0.25s;
+  }
+
+  .flow-node:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0,229,255,0.2);
+  }
+
+  .flow-node .fn-label { color: var(--text3); font-size: 13px; letter-spacing: 1px; display: block; }
+  .flow-node .fn-name  { color: var(--text); font-size: 15px; }
+
+  .flow-node.accent .fn-name { color: var(--accent); }
+  .flow-node.success .fn-name { color: var(--success); }
+  .flow-node.danger  .fn-name { color: var(--danger); }
+  .flow-node.warn    .fn-name { color: var(--warning); }
+
+  .flow-arrow { color: var(--text3); font-size: 20px; }
+
+  /* ─── KEYWORD LOGIC ─── */
+  .logic-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 15px;
+  }
+
+  .logic-table th {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .logic-table td {
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  .logic-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .badge.skip    { background: rgba(255,83,112,0.15); color: var(--danger); border: 1px solid rgba(255,83,112,0.3); }
+  .badge.process { background: rgba(0,255,136,0.1);  color: var(--success); border: 1px solid rgba(0,255,136,0.25); }
+
+  /* ─── FAQ ─── */
+  .faq-item {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    margin-bottom: 10px;
+    transition: border-left-color 0.25s;
+    overflow: hidden;
+  }
+
+  .faq-item:hover { border-left-color: var(--accent4); }
+
+  .faq-q {
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    background: var(--panel);
+    transition: background 0.2s;
+  }
+
+  .faq-q:hover { background: var(--bg3); }
+  .faq-q .arrow { color: var(--text3); transition: transform 0.25s; font-size: 14px; }
+  .faq-item.open .faq-q .arrow { transform: rotate(180deg); color: var(--accent4); }
+
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.25s;
+    font-size: 16px;
+    color: var(--text2);
+    line-height: 1.7;
+    background: var(--panel);
+    padding: 0 20px;
+  }
+
+  .faq-item.open .faq-a {
+    max-height: 400px;
+    padding: 0 20px 18px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    margin-top: 80px;
+    padding: 40px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer .ft-logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  footer .ft-logo span { color: var(--accent); }
+
+  /* ─── UTILITY ─── */
+  .highlight-cyan   { color: var(--accent);  font-weight: 600; }
+  .highlight-green  { color: var(--success); font-weight: 600; }
+  .highlight-red    { color: var(--danger);  font-weight: 600; }
+  .highlight-orange { color: var(--warning); font-weight: 600; }
+
+  strong { color: var(--text); font-weight: 700; }
+  code {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 1px 7px;
+    border-radius: 2px;
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1; }
+  }
+
+  .pulse { animation: pulse-glow 2.5s ease-in-out infinite; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ─── PRINT ─── */
+  @media print {
+    .lang-bar { position: static; }
+    .grid-bg, body::before { display: none; }
+    body { background: #fff; color: #111; }
+    .lang-panel { display: block !important; }
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 50px 20px 40px; }
+    .wrapper { padding: 0 14px 60px; }
+    .file-cards { grid-template-columns: 1fr; }
+    .flow { gap: 5px; padding: 16px; }
+    .flow-node { min-width: 80px; padding: 8px 10px; }
+  }
+
+.code-block pre {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+}
+
+.code-block code {
+  display: block;
+  padding: 8px 15px; 
+  font-family: Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  background-color: var(--bg);
+  color: var(--accent2);
+}
+
+.code-block code .comment {
+  color: var(--text3); 
+}
+
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- ─── HERO ─── -->
+<header class="hero">
+  <div class="hero-tag pulse">⬡ User Manual · v1.0</div>
+  <h1>
+    <span class="lo">BT4G Torrent</span><br>
+    <span class="hi">Magnet Scraper</span>
+  </h1>
+  <p class="hero-sub">// How To Start Guide · EN / ES //</p>
+</header>
+
+<!-- ─── LANG TOGGLE ─── -->
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('en')">🇬🇧 English</button>
+  <button class="lang-btn"       onclick="setLang('es')">🇪🇸 Español</button>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ENGLISH
+══════════════════════════════════════════════ -->
+<div class="wrapper">
+<div id="panel-en" class="lang-panel active">
+
+  <!-- WHAT IS IT -->
+  <div class="section">
+    <div class="section-label">01 · Overview</div>
+    <h2>What is BT4G Torrent Magnet Scraper?</h2>
+    <p>
+      <strong>BT4G Torrent Magnet Scraper</strong> is a Windows desktop application that automates
+      the process of finding torrents on the <strong>BT4G</strong> index website and collecting
+      their <strong>magnet links</strong> — all without manual searching.
+    </p>
+    <p>
+      You define <em>what to look for</em>, <em>what to keep</em>, and <em>what to throw away</em>
+      through three plain-text configuration files. The app does the heavy lifting: it queries BT4G,
+      filters the results according to your rules, and delivers a clean list of magnet links ready
+      to paste into your torrent client.
+    </p>
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <span>BT4G is a public BitTorrent DHT search engine. The scraper reads publicly accessible
+      search result pages and extracts magnet link data. No account or login is required.</span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS (FLOW) -->
+  <div class="section">
+    <div class="section-label">02 · How It Works</div>
+    <h2>Processing Pipeline</h2>
+    <p>Understanding the internal flow helps you configure the tool correctly:</p>
+    <div class="flow">
+      <div class="flow-node accent">
+        <span class="fn-label">input</span>
+        <span class="fn-name">Search Terms.txt</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">
+        <span class="fn-label">http query</span>
+        <span class="fn-name">BT4G.com</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node warn">
+        <span class="fn-label">filter ①</span>
+        <span class="fn-name">Forbidden Keywords</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node success">
+        <span class="fn-label">filter ②</span>
+        <span class="fn-name">Required Keywords</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">
+        <span class="fn-label">extract</span>
+        <span class="fn-name">Magnet Links</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node success">
+        <span class="fn-label">output</span>
+        <span class="fn-name">Results</span>
+      </div>
+    </div>
+    <p style="margin-top:0">
+      The two filters are applied <strong>sequentially</strong>:
+      forbidden keywords are checked first — if any match, the torrent is <em>immediately discarded</em>.
+      Only surviving results then go through the required-keywords check.
+    </p>
+  </div>
+
+  <!-- QUICK START -->
+  <div class="section">
+    <div class="section-label">03 · Quick Start</div>
+    <h2>Getting Up &amp; Running</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Locate the three configuration files</div>
+          <div class="step-desc">
+            The configuration files are located inside the <code>config</code> folder,
+            which sits in the same directory as <code>BT4G Torrent Magnet Scraper.exe</code>.
+            Inside that folder you will find <code>Search Terms.txt</code>,
+            <code>Forbidden Keywords.txt</code>, and <code>Required Keywords.txt</code>.
+            Open them with any plain-text editor (Notepad, VS Code, Notepad++, etc.).
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Fill in your search terms</div>
+          <div class="step-desc">
+            Edit <code>Search Terms.txt</code>. Add one search term per line.
+            These terms are passed directly to BT4G's search engine, so use the
+            same wording you would type in a browser.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Define what to exclude (optional)</div>
+          <div class="step-desc">
+            Edit <code>Forbidden Keywords.txt</code>. Add one keyword per line.
+            Any torrent whose name contains <em>any</em> of these keywords will be
+            silently discarded, no matter what. Great for filtering out unwanted formats,
+            languages, sources, or qualities.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Define what to keep (mandatory)</div>
+          <div class="step-desc">
+            Edit <code>Required Keywords.txt</code>. Add one keyword per line.
+            A torrent is only collected if its name contains <em>at least one</em>
+            of these keywords — this filter is always active and must contain
+            at least one entry.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Run the application</div>
+          <div class="step-desc">
+            Double-click <code>BT4G Torrent Magnet Scraper.exe</code>. The app will
+            process each search term in sequence, apply your filters, and save
+            the results to the <code>output</code> folder located next to the executable.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">06</div>
+        <div class="step-body">
+          <div class="step-title">Check the output folder</div>
+          <div class="step-desc">
+            Open the <code>output</code> folder once the app finishes. You will find
+            one result file per search term — check its contents to find your
+            collected magnet links.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG FILES -->
+  <div class="section">
+    <div class="section-label">04 · Configuration Files</div>
+    <h2>The Three Files in Detail</h2>
+
+    <div class="file-cards">
+      <div class="file-card search">
+        <div class="file-icon">🔍</div>
+        <div class="file-name">Search Terms.txt</div>
+        <h3>Search Terms</h3>
+        <p>
+          Each non-comment line is sent as a separate search query to BT4G.
+          Use meaningful, specific terms for better results. Avoid overly
+          generic terms unless you plan to rely heavily on keyword filtering.
+        </p>
+      </div>
+      <div class="file-card forbid">
+        <div class="file-icon">🚫</div>
+        <div class="file-name">Forbidden Keywords.txt</div>
+        <h3>Forbidden Keywords</h3>
+        <p>
+          Hard blacklist. A torrent matching <em>any</em> keyword here is
+          dropped unconditionally — it won't even reach the required-keywords
+          check. Case-insensitive matching is recommended.
+        </p>
+      </div>
+      <div class="file-card require">
+        <div class="file-icon">✅</div>
+        <div class="file-name">Required Keywords.txt</div>
+        <h3>Required Keywords</h3>
+        <p>
+          <strong>Mandatory</strong> whitelist filter. A torrent is only collected if its
+          name contains <em>at least one</em> of these keywords.
+          Must have at least one active entry.
+        </p>
+      </div>
+    </div>
+
+    <!-- Example content -->
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <span>Lines starting with <code>#</code> are treated as <strong>comments</strong> and are
+      completely ignored. Use them to annotate your lists or temporarily disable entries.</span>
+    </div>
+
+<div class="code-block">
+    <span class="code-label">Search Terms.txt — example</span>
+    <pre><code><span class="comment"># Movies I'm looking for</span>
+Dune Part Two
+Blade Runner 2049
+
+<span class="comment"># TV series</span>
+Dark Season 1
+Severance</code></pre>
+</div>
+
+<div class="code-block">
+    <span class="code-label">Forbidden Keywords.txt — example</span>
+    <pre><code><span class="comment"># Skip low-quality rips</span>
+CAM
+HDCAM
+TS
+TELESYNC
+
+<span class="comment"># Skip non-English audio</span>
+FRENCH
+DUBBED
+HINDI</code></pre>
+</div>
+
+<div class="code-block">
+    <span class="code-label">Required Keywords.txt — example</span>
+    <pre><code><span class="comment"># Only accept these video quality tags</span>
+1080p
+2160p
+4K
+BluRay
+WEB-DL
+REMUX</code></pre>
+</div>
+
+<div class="code-block">
+    <span class="code-label">Required Keywords.txt — example</span>
+    <pre><code><span class="comment"># Accept practically all search results</span>
+<span class="comment"># (👇 notice the white space line here below)</span>
+ 
+.
++
+_
+[
+]</code></pre>
+</div></div>
+
+  <!-- FILTER LOGIC -->
+  <div class="section">
+    <div class="section-label">05 · Filter Logic</div>
+    <h2>Filter Decision Matrix</h2>
+    <p>The following table shows every possible combination of filter states
+    and the outcome for a given torrent:</p>
+
+    <table class="logic-table">
+      <thead>
+        <tr>
+          <th>Forbidden keyword match?</th>
+          <th>Required keyword match?</th>
+          <th>Outcome</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="highlight-red">YES</span></td>
+          <td>Any</td>
+          <td><span class="badge skip">SKIP</span> — Always discarded</td>
+        </tr>
+        <tr>
+          <td><span class="highlight-green">NO</span></td>
+          <td><span class="highlight-green">YES</span></td>
+          <td><span class="badge process">PROCESS</span> — Magnet link saved to output</td>
+        </tr>
+        <tr>
+          <td><span class="highlight-green">NO</span></td>
+          <td><span class="highlight-red">NO</span></td>
+          <td><span class="badge skip">SKIP</span> — No required keyword found</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <span><strong>Priority:</strong> Forbidden keywords always win. Even if a torrent matches
+      a required keyword, it will be dropped if it also matches a forbidden keyword.
+      Forbidden = absolute veto.</span>
+    </div>
+  </div>
+
+  <!-- TIPS & BEST PRACTICES -->
+  <div class="section">
+    <div class="section-label">06 · Best Practices</div>
+    <h2>Tips for Great Results</h2>
+
+    <div class="callout tip">
+      <span class="callout-icon">🎯</span>
+      <span><strong>Be specific with search terms.</strong> Instead of <code>movie</code>,
+      use <code>Inception 2010 BluRay</code>. BT4G returns results ranked by
+      relevance; specific terms give you cleaner, more manageable result sets.</span>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">🗂️</span>
+      <span><strong>Use the forbidden list aggressively.</strong> Add cam rips, dubbed versions,
+      unwanted languages, and known spam-release-group names. This is cheaper (computationally
+      and mentally) than curating the required list to compensate.</span>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">🔤</span>
+      <span><strong>Keyword matching is partial.</strong> A forbidden keyword of <code>CAM</code>
+      will match any torrent name containing the string "CAM" — e.g. <em>MovieName.CAM.rip.mkv</em>.
+      Keep keywords short and distinct to avoid unintended collateral filtering.</span>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">🪄</span>
+      <span><strong>Want to accept virtually every search result?</strong> Add a single space
+      (<code> </code>), a period (<code>.</code>), and a plus sign (<code>+</code>) to
+      <code>Required Keywords.txt</code> (remember, one term per line!). Since almost every torrent name contains one
+      of these characters, it acts as a near-universal match — handy when you only want
+      the forbidden list to do the filtering.</span>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section">
+    <div class="section-label">07 · FAQ</div>
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        The results file is empty. What happened?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        Two likely causes: (1) Your <strong>search terms</strong> returned no results on BT4G
+        — try simpler, broader terms. (2) Your <strong>filter combination</strong> is too
+        restrictive — every result is being blocked by forbidden keywords, or none match
+        your required keywords. Try temporarily clearing both filter files to confirm
+        the scraper is working, then re-add filters gradually.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Does keyword matching care about uppercase/lowercase?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        Matching is <strong>case-insensitive</strong>. A forbidden keyword of <code>cam</code>
+        will catch <em>CAM</em>, <em>Cam</em>, and <em>cam</em> alike.
+        Write keywords however is natural for you.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Can I have multiple search terms on one line?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        No. Each line is treated as <strong>one complete search query</strong>.
+        If you put multiple terms on a single line (e.g. <code>Dune Blade Runner</code>),
+        BT4G will receive that entire string as a single query — which may or may not
+        return what you expect. One term per line is the correct format.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        I want to collect everything — how do I make Required Keywords match all results?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        Add a single space (<code> </code>), a period (<code>.</code>), or a plus sign
+        (<code>+</code>) as an entry in <code>Required Keywords.txt</code>. Because
+        virtually every torrent name contains at least one of these characters, this
+        acts as a universal match — meaning only the forbidden list will do any filtering.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Can I comment out entries without deleting them?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        Yes! Prefix any line with <code>#</code> to turn it into a comment.
+        The app will ignore it completely. This is useful for temporarily
+        disabling a keyword or search term without losing it.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel-en -->
+
+
+<!-- ══════════════════════════════════════════════
+     ESPAÑOL
+══════════════════════════════════════════════ -->
+<div id="panel-es" class="lang-panel">
+
+  <!-- QUÉ ES -->
+  <div class="section">
+    <div class="section-label">01 · Introducción</div>
+    <h2>¿Qué es BT4G Torrent Magnet Scraper?</h2>
+    <p>
+      <strong>BT4G Torrent Magnet Scraper</strong> es una aplicación de escritorio para Windows
+      que automatiza la búsqueda de torrents en el índice <strong>BT4G</strong> y la recopilación
+      de sus <strong>enlaces magnet</strong>, sin necesidad de buscar manualmente.
+    </p>
+    <p>
+      Tú decides <em>qué buscar</em>, <em>qué conservar</em> y <em>qué descartar</em>
+      mediante tres sencillos archivos de texto plano. La aplicación hace el trabajo duro:
+      consulta BT4G, filtra los resultados según tus reglas y te entrega una lista limpia
+      de enlaces magnet listos para pegar en tu cliente de torrents.
+    </p>
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <span>BT4G es un motor de búsqueda público de torrents DHT. El scraper lee páginas de
+      resultados de acceso público y extrae los datos de los enlaces magnet.
+      No se necesita cuenta ni inicio de sesión.</span>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="section">
+    <div class="section-label">02 · Funcionamiento</div>
+    <h2>Pipeline de Procesamiento</h2>
+    <p>Entender el flujo interno te ayudará a configurar la herramienta correctamente:</p>
+    <div class="flow">
+      <div class="flow-node accent">
+        <span class="fn-label">entrada</span>
+        <span class="fn-name">Search Terms.txt</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">
+        <span class="fn-label">consulta http</span>
+        <span class="fn-name">BT4G.com</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node warn">
+        <span class="fn-label">filtro ①</span>
+        <span class="fn-name">Palabras Prohibidas</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node success">
+        <span class="fn-label">filtro ②</span>
+        <span class="fn-name">Palabras Requeridas</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">
+        <span class="fn-label">extracción</span>
+        <span class="fn-name">Magnet Links</span>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node success">
+        <span class="fn-label">salida</span>
+        <span class="fn-name">Resultados</span>
+      </div>
+    </div>
+    <p style="margin-top:0">
+      Los dos filtros se aplican <strong>secuencialmente</strong>:
+      primero se comprueban las palabras prohibidas — si hay coincidencia, el torrent se
+      <em>descarta de inmediato</em>. Solo los resultados que superan ese filtro pasan
+      a la comprobación de palabras requeridas.
+    </p>
+  </div>
+
+  <!-- INICIO RÁPIDO -->
+  <div class="section">
+    <div class="section-label">03 · Inicio Rápido</div>
+    <h2>Empezar a Usar la Aplicación</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Localiza los tres archivos de configuración</div>
+          <div class="step-desc">
+            Los archivos de configuración se encuentran dentro de la carpeta <code>config</code>,
+            que está ubicada en el mismo directorio que <code>BT4G Torrent Magnet Scraper.exe</code>.
+            Dentro de esa carpeta encontrarás <code>Search Terms.txt</code>,
+            <code>Forbidden Keywords.txt</code> y <code>Required Keywords.txt</code>.
+            Ábrelos con cualquier editor de texto plano (Bloc de notas, VS Code, Notepad++, etc.).
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Rellena tus términos de búsqueda</div>
+          <div class="step-desc">
+            Edita <code>Search Terms.txt</code>. Escribe un término de búsqueda por línea.
+            Estos términos se envían directamente al buscador de BT4G, así que usa
+            la misma redacción que escribirías en un navegador.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Define qué excluir (opcional)</div>
+          <div class="step-desc">
+            Edita <code>Forbidden Keywords.txt</code>. Una palabra clave por línea.
+            Cualquier torrent cuyo nombre contenga <em>alguna</em> de estas palabras
+            será descartado sin condiciones, sin importar qué. Ideal para filtrar
+            formatos no deseados, idiomas, calidades o grupos de lanzamiento conocidos.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Define qué conservar (obligatorio)</div>
+          <div class="step-desc">
+            Edita <code>Required Keywords.txt</code>. Una palabra clave por línea.
+            Un torrent solo se recopila si su nombre contiene <em>al menos una</em>
+            de estas palabras — este filtro está siempre activo y debe tener al menos
+            una entrada.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Ejecuta la aplicación</div>
+          <div class="step-desc">
+            Haz doble clic en <code>BT4G Torrent Magnet Scraper.exe</code>. La app
+            procesará cada término de búsqueda en secuencia, aplicará tus filtros
+            y guardará los resultados en la carpeta <code>output</code>, ubicada
+            junto al ejecutable.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">06</div>
+        <div class="step-body">
+          <div class="step-title">Revisa la carpeta output</div>
+          <div class="step-desc">
+            Una vez que la app termine, abre la carpeta <code>output</code>. Encontrarás
+            un archivo de resultados por cada término de búsqueda — consulta su contenido
+            para encontrar los enlaces magnet recopilados.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVOS DE CONFIG -->
+  <div class="section">
+    <div class="section-label">04 · Archivos de Configuración</div>
+    <h2>Los Tres Archivos en Detalle</h2>
+
+    <div class="file-cards">
+      <div class="file-card search">
+        <div class="file-icon">🔍</div>
+        <div class="file-name">Search Terms.txt</div>
+        <h3>Términos de Búsqueda</h3>
+        <p>
+          Cada línea que no sea comentario se envía como consulta independiente a BT4G.
+          Usa términos significativos y específicos para obtener mejores resultados.
+          Evita términos demasiado genéricos salvo que vayas a filtrar mucho después.
+        </p>
+      </div>
+      <div class="file-card forbid">
+        <div class="file-icon">🚫</div>
+        <div class="file-name">Forbidden Keywords.txt</div>
+        <h3>Palabras Prohibidas</h3>
+        <p>
+          Lista negra absoluta. Un torrent que coincida con <em>cualquier</em> palabra
+          de aquí se ignorta incondicionalmente — ni siquiera llega al filtro de
+          palabras requeridas.
+        </p>
+      </div>
+      <div class="file-card require">
+        <div class="file-icon">✅</div>
+        <div class="file-name">Required Keywords.txt</div>
+        <h3>Palabras Requeridas</h3>
+        <p>
+          Filtro de lista blanca <strong>obligatorio</strong>. Un resultador de búsqueda se procesa solo si
+          su nombre contiene <em>al menos una</em> de estas palabras.
+          El archivo debe contener al menos una entrada activa.
+        </p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <span>Las líneas que empiezan por <code>#</code> son <strong>comentarios</strong>
+      y se ignoran completamente. Úsalos para anotar tus listas o deshabilitar
+      entradas temporalmente.</span>
+    </div>
+
+<div class="code-block">
+    <span class="code-label">Search Terms.txt — ejemplo</span>
+    <pre><code><span class="comment"># Películas que busco</span>
+Dune Part Two
+Blade Runner 2049
+
+<span class="comment"># Series</span>
+Dark Temporada 1
+Severance</code></pre>
+</div>
+
+<div class="code-block">
+    <span class="code-label">Forbidden Keywords.txt — ejemplo</span>
+    <pre><code><span class="comment"># Descartar copias de baja calidad</span>
+CAM
+HDCAM
+TS
+TELESYNC
+
+<span class="comment"># Descartar audio en idiomas no deseados</span>
+FRENCH
+DUBBED
+HINDI</code></pre>
+</div>
+
+<div class="code-block">
+    <span class="code-label">Required Keywords.txt — ejemplo</span>
+    <pre><code><span class="comment"># Aceptar solo estas etiquetas de calidad de vídeo</span>
+1080p
+2160p
+4K
+BluRay
+WEB-DL
+REMUX</code></pre>
+</div>
+
+<div class="code-block">
+    <span class="code-label">Required Keywords.txt — ejemplo</span>
+    <pre><code><span class="comment"># Aceptar prácticamente todos los resultados de búsqueda</span>
+<span class="comment">(👇 observa la línea de espacio en blanco aquí abajo)</span>
+ 
+.
++
+_
+[
+]</code></pre>
+</div>
+
+  <!-- LÓGICA DE FILTROS -->
+  <div class="section">
+    <div class="section-label">05 · Lógica de Filtros</div>
+    <h2>Matriz de Decisión de Filtros</h2>
+    <p>La siguiente tabla muestra todas las combinaciones posibles y el resultado para cada torrent:</p>
+
+    <table class="logic-table">
+      <thead>
+        <tr>
+          <th>¿Coincide palabra prohibida?</th>
+          <th>¿Coincide palabra requerida?</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="highlight-red">SÍ</span></td>
+          <td><span class="highlight-red">(NO APLICABLE)</span></td>
+          <td><span class="badge skip">DESCARTAR</span> — Siempre ignorado</td>
+        </tr>
+        <tr>
+          <td><span class="highlight-green">NO</span></td>
+          <td><span class="highlight-red">NO</span></td>
+          <td><span class="badge skip">DESCARTAR</span> — Ninguna palabra requerida encontrada</td>
+        </tr>
+        <tr>
+          <td><span class="highlight-green">NO</span></td>
+          <td><span class="highlight-green">SÍ</span></td>
+          <td><span class="badge process">PROCESAR</span> — Magnet link guardado en output</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <span><strong>Prioridad:</strong> Las palabras prohibidas siempre tienen la primera y última palabra al decidir.
+      Aunque un torrent coincida con una palabra requerida, será ignorado si también
+      coincide con una prohibida. Prohibido = veto absoluto.</span>
+    </div>
+  </div>
+
+  <!-- CONSEJOS -->
+  <div class="section">
+    <div class="section-label">06 · Buenas Prácticas</div>
+    <h2>Consejos para Mejores Resultados</h2>
+
+    <div class="callout tip">
+      <span class="callout-icon">🎯</span>
+      <span><strong>Sé específico con los términos de búsqueda.</strong> En lugar de
+      <code>Inception</code>, usa <code>Inception 2010 BluRay</code>. BT4G ordena
+      los resultados por relevancia; los términos concretos generan conjuntos
+      de resultados más precisos.</span>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">🗂️</span>
+      <span><strong>Usa la lista de prohibiciones sin piedad.</strong> Añade cam-rips,
+      versiones dobladas, idiomas no deseados y grupos de lanzamiento conocidos por spam.
+      Es más eficiente que intentar compensarlo con la lista de requeridas.</span>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">🔤</span>
+      <span><strong>La comparación es parcial.</strong> Una palabra prohibida <code>"CAM"</code>
+      coincidirá con cualquier nombre que contenga la cadena "CAM" — por ejemplo
+      <em>"El <span class="highlight-red">cam</span>ino a la perdición (2002).mkv</em>". Ppuedes añadir espacios en blanco y signos de puntuación para evitar evitar filtraciones no deseadas por colisión, por ejemplo <code>" CAM "</code> o <code>".CAM."</code>.</span>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">🪄</span>
+      <span><strong>¿Quieres aceptar prácticamente todos los resultados?</strong> Añade un espacio en blanco
+      (<code> </code>), un punto (<code>.</code>) y un signo más (<code>+</code>) en
+      <code>Required Keywords.txt</code> (recuerda, ¡un término por línea!). Como casi todos los nombres de torrents contienen
+      alguno de estos caracteres, actúa como un comodín universal — perfecto cuando solo
+      quieres que sea la lista prohibida quien filtre.</span>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section">
+    <div class="section-label">07 · Preguntas Frecuentes</div>
+    <h2>FAQ</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        El archivo de resultados está vacío. ¿Qué ha pasado?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        Dos causas probables: (1) Tus <strong>términos de búsqueda</strong> no devuelven
+        resultados en BT4G — prueba con términos más simples y genéricos. (2) Tu
+        <strong>combinación de filtros</strong> es demasiado restrictiva — todos los
+        resultados son bloqueados por la lista prohibida o ninguno coincide con las
+        palabras requeridas. Vacía temporalmente ambos archivos de filtros para confirmar
+        que el scraper funciona, y luego vuelve a añadir los filtros poco a poco.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        ¿La comparación de palabras distingue mayúsculas de minúsculas?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        La comparación es <strong>insensible a mayúsculas/minúsculas</strong>.
+        Una palabra prohibida <code>cam</code> detectará <em>CAM</em>, <em>Cam</em>
+        y <em>cam</em> por igual. Escribe las palabras clave como te resulte natural.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        ¿Puedo poner varios términos de búsqueda en una sola línea?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        No. Cada línea se trata como <strong>una consulta de búsqueda completa</strong>.
+        Si pones varios términos en una línea (p. ej. <code>Dune Blade Runner</code>),
+        BT4G recibirá esa cadena completa como una única consulta, lo que puede
+        no devolver lo que esperas. Una línea = un término: es el formato correcto.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Quiero recopilar todo, ¿cómo hago que Palabras Requeridas coincida con todo?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        Añade un espacio en blanco (<code> </code>), un punto (<code>.</code>) o un
+        signo más (<code>+</code>) como entrada en <code>Required Keywords.txt</code>.
+        Como prácticamente todos los nombres de torrents contienen alguno de esos
+        caracteres, actúa como comodín universal — solo la lista prohibida filtrará resultados.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        ¿Puedo comentar entradas sin borrarlas?
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        ¡Por supuesto! Pon <code>#</code> al inicio de cualquier línea para convertirla
+        en comentario. La aplicación la ignorará completamente. Muy útil para deshabilitar
+        temporalmente una palabra clave o un término de búsqueda sin perderlo.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel-es -->
+</div><!-- /wrapper -->
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="ft-logo">
+    <span>BT4G</span> Torrent Magnet Scraper · ElektroStudios
+  </div>
+  <p style="color:var(--text3);font-size:14px;font-family:'Share Tech Mono',monospace;margin-top:10px;letter-spacing:1px;">
+    // User Manual · How To Start //
+  </p>
+</footer>
+
+<script>
+  function setLang(lang) {
+    document.querySelectorAll('.lang-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + lang).classList.add('active');
+    document.querySelector('.lang-btn[onclick*="' + lang + '"]').classList.add('active');
+  }
+
+  function toggleFaq(el) {
+    const item = el.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    // Close all in same panel
+    el.closest('.lang-panel').querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // Stagger section animations on scroll
+  const sections = document.querySelectorAll('.section');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationPlayState = 'running';
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  sections.forEach(s => {
+    s.style.animationPlayState = 'paused';
+    obs.observe(s);
+  });
+</script>
+</body>
+</html>

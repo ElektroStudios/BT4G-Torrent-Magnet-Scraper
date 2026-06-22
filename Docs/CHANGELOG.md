@@ -1,12 +1,4 @@
-# REPOSITORY NAME Change Log 📋
-
-## v1.1 *(current)* 🆕
-#### 🚀 New Features:
-    • Description
-#### 🛠️ Fixes:
-    • Description
-#### 🌟 Improvements:
-    • Description
+# BT4G Torrent Magnet Scraper Change Log 📋
 
 ## v1.0 🔄
 Initial Release.
