@@ -82,6 +82,8 @@ This Work (the repository and the content provided in) is provided "as is", with
 
 This Work has no affiliation, approval or endorsement by the author(s) of the third-party libraries used by this Work.
 
+The author of this software, ElektroStudios, explicitly disclaims any responsibility for the content acquired using the extracted magnet links. The user assumes full liability for ensuring that their torrent downloads comply with all applicable local laws and regulations.
+
 ## 💪 Contributing
 
 Your contribution is highly appreciated!. If you have any ideas, suggestions, or encounter issues, feel free to open an issue by clicking [here](https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/issues/new/choose). 
