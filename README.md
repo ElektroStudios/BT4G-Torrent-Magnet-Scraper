@@ -21,11 +21,25 @@ winforms
 torrent 
 magnet 
 magnets 
+magnet-link 
+magnet-links 
 BT4G 
 searcher 
 selenium 
 scrap 
 scraper 
+web-scraper 
+webscraper 
+web-sraping 
+websraping 
+web-spider 
+webspider 
+web-crawler 
+webcrawler 
+web-crawling 
+webcrawling 
+searchengine  
+search-engine  
  -->
 
 # BT4G Torrent Magnet Scraper
@@ -69,7 +83,7 @@ Also, you can read a manual in HTML format by clicking [here](https://htmlprevie
 
 ## 💡 Performance Recommendation
 
-To significantly optimize the page loading speed and reduce bandwidth consumption when accessing the bt4g website, it is **highly recommended** to install/load the **uBlock Origin Lite** extension in the Chrome browser instance. By actively blocking unwanted ads, trackers, and heavy background scripts, the scraping process becomes drastically faster and much more stable.
+To significantly optimize the page loading speed and reduce bandwidth consumption when accessing the bt4g website, it is **highly recommended** to install/load the **[uBlock Origin Lite](https://chromewebstore.google.com/detail/ublock-origin-lite/ddkjiahejlhfcafbddmgiahcphecmpfh)** extension in the Chrome browser instance. By actively blocking unwanted ads, trackers, and heavy background scripts, the scraping process becomes drastically faster and much more stable.
 
 ## 🔄 Change Log
 
