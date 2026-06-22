@@ -18,11 +18,19 @@ windows-application
 windows-applications 
 windows-forms 
 winforms 
+torrent 
+magnet 
+magnets 
+BT4G 
+searcher 
+selenium 
+scrap 
+scraper 
  -->
 
 # BT4G Torrent Magnet Scraper
 
-### AN interactive command-line torrent magnet scraper for https://bt4gprx.com/ with automated keyword filtering.
+### An automated interactive command-line torrent magnet scraper for https://bt4gprx.com/ with rule-based filtering.
 
 ------------------
 
