@@ -57,7 +57,7 @@ The program runs Selenium in the background to launch and automate a Chrome brow
 
 Download the latest compilation by clicking [here](https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/releases/latest) and start using it.
 
-Also, you can read a manual in HTML format by clicking [here](/Source/BT4G%20Scraper/manual/BT4G%20Torrent%20Magnet%20Scraper%20Manual.html).
+Also, you can read a manual in HTML format by clicking [here](https://htmlpreview.github.io/?https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/blob/main/Source/BT4G%20Scraper/manual/BT4G%20Torrent%20Magnet%20Scraper%20Manual.html).
 
 ## 🔄 Change Log
 
