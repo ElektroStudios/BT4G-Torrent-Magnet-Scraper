@@ -42,9 +42,14 @@ searchengine
 search-engine  
  -->
 
-# BT4G Torrent Magnet Scraper
+<div align="center">
+  <img src="/Images/App.ico" width="80" alt="BT4G Torrent Magnet Scraper Logo">
+  
+  <h1>BT4G Torrent Magnet Scraper</h1>
 
 ### An automated interactive command-line torrent magnet scraper for https://bt4gprx.com/ with rule-based filtering.
+
+</div>
 
 ------------------
 
