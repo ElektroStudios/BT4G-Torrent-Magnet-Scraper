@@ -47,7 +47,7 @@ search-engine
   
   <h1>BT4G Torrent Magnet Scraper</h1>
 
-### An automated command-line interface torrent magnet scraper for https://bt4gprx.com/ with rule-based filtering.
+### A command-line utility to scrape torrent magnet links from https://bt4gprx.com/, with rule-based filtering.
 
 </div>
 
