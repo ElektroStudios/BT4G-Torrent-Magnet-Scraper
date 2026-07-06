@@ -131,15 +131,6 @@ To significantly optimize the page loading speed and reduce bandwidth consumptio
 
 Explore the complete list of changes, bug fixes, and improvements across different releases by clicking [here](/Docs/CHANGELOG.md).
 
-## 🏆 Credits
-
-This work relies on the following technologies, libraries or resources: 
-
- - [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
- - [Selenium.WebDriver](https://www.nuget.org/packages/selenium.webdriver)
- - [HtmlAgilityPack](https://www.nuget.org/packages/HtmlAgilityPack)
- - [DevCase](https://github.com/ElektroStudios/DevCase.github.io)
-
 ## 💪 Contributing
 
 Your contribution is highly appreciated!. If you have any ideas, suggestions, or encounter issues, feel free to open an issue by clicking [here](https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/issues/new/choose). 
@@ -162,6 +153,15 @@ This work is distributed for educational purposes and without any profit motive.
 </div>
 
 ------------------
+
+## 🏆 Credits
+
+This work relies on the following technologies, libraries or resources: 
+
+ - [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+ - [Selenium.WebDriver](https://www.nuget.org/packages/selenium.webdriver)
+ - [HtmlAgilityPack](https://www.nuget.org/packages/HtmlAgilityPack)
+ - [DevCase](https://github.com/ElektroStudios/DevCase.github.io)
 
 ## ⚠️ Disclaimer
 
