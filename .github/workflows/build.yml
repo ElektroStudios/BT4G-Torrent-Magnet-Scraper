@@ -2,7 +2,7 @@
 # CUSTOMIZABLE TEMPLATE REPOSITORY VARIABLES
 # 
 env:
-  SOLUTION_NAME: "BT4G-Torrent-Magnet-Scraper"
+  SOLUTION_NAME: "BT4G Torrent Magnet Scraper"
   SOLUTION_EXT:  "slnx"
   SONAR_PROJECT_KEY:  "ElektroStudios_BT4G-Torrent-Magnet-Scraper"
   SONAR_ORGANIZATION: "elektrostudios"
@@ -56,4 +56,3 @@ jobs:
           nuget restore "Source\${{ env.SOLUTION_NAME }}.${{ env.SOLUTION_EXT }}"
           dotnet build "Source\${{ env.SOLUTION_NAME }}.${{ env.SOLUTION_EXT }}" -p:GenerateResourceUsePreserializedResources=true
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="$env:SONAR_TOKEN"
-          
