@@ -88,6 +88,14 @@ search-engine
 
 The program runs Selenium in the background to launch and automate a Chrome browser instance.
 
+## 🖼️ Screenshots
+
+![screenshot](/Images/screenshot1.png)
+
+## 🎦 Videos
+
+[BT4G Torrent Magnet Scraper demo.mp4](https://github.com/user-attachments/assets/6693987c-c059-4955-ae73-6b1d91cdacbe)
+
 ## 🤖 Features
 
 * **Sequential Bulk Querying:** Processes multiple search terms automatically from a structured input list.
@@ -97,14 +105,6 @@ The program runs Selenium in the background to launch and automate a Chrome brow
   * `.\Config\Forbidden Keywords.txt`: Blacklists unwanted terms, instantly dropping matching torrents even if they satisfy the required criteria.
   * `.\Config\Query Additional Parameters.txt`: Appends custom HTTP GET URL parameters (such as `category=movie` or `orderby=seeders`) to filter and sort results directly on the server side.
   
-## 🖼️ Screenshots
-
-![screenshot](/Images/screenshot1.png)
-
-## 🎦 Videos
-
-[BT4G Torrent Magnet Scraper demo.mp4](https://github.com/user-attachments/assets/6693987c-c059-4955-ae73-6b1d91cdacbe)
-
 ## 📝 Requirements
 
 - Microsoft Windows OS (64-Bit).
