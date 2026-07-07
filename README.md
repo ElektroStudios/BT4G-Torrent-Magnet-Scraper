@@ -67,11 +67,11 @@ search-engine
     <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/releases/latest"><img src="https://img.shields.io/github/v/release/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="Latest Release"></a>
     <a href="https://learn.microsoft.com/en-us/dotnet/visual-basic/"><img src="https://img.shields.io/badge/language-VB.NET-purple.svg?logo=visualbasic" alt="Language"></a>
     <a href="https://learn.microsoft.com/en-us/windows/apps/"><img src="https://img.shields.io/badge/platform-Windows-lightgray.svg" alt="Platform"></a>
-    <a href="License.md"><img src="https://img.shields.io/github/license/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="License"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="License"></a>
   <br>
-    <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/archive/refs/heads/main.zip"><img src="https://img.shields.io/github/repo-size/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="Repo size"></a>
+    <a href="https://api.github.com/repos/ElektroStudios/BT4G-Torrent-Magnet-Scraper/zipball"><img src="https://img.shields.io/github/repo-size/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="Repo size"></a>
     <a href="https://somsubhra.github.io/github-release-stats/?username=ElektroStudios&repository=BT4G-Torrent-Magnet-Scraper"><img src="https://img.shields.io/github/downloads/ElektroStudios/BT4G-Torrent-Magnet-Scraper/total.svg?label=total%20downloads" alt="Total Downloads"></a>
-    <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/commits/main"><img src="https://img.shields.io/github/last-commit/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="Last commit"></a>
+    <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/commits"><img src="https://img.shields.io/github/last-commit/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="Last commit"></a>
     <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/pulls"><img src="https://img.shields.io/github/issues-pr/ElektroStudios/BT4G-Torrent-Magnet-Scraper" alt="Pull Requests"></a>
     <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/issues?q=is%3Aissue+is%3Aopen"><img src="https://img.shields.io/github/issues/ElektroStudios/BT4G-Torrent-Magnet-Scraper?color=blue" alt="Open Issues"></a><a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/ElektroStudios/BT4G-Torrent-Magnet-Scraper?label=&color=28a745" alt="Closed Issues"></a>
     <a href="https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/pulse"><img src="https://img.shields.io/badge/maintained-yes-green.svg" alt="Maintenance"></a>
