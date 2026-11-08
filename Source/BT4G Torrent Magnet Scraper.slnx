@@ -5,4 +5,7 @@
   <Project Path="BT4G Torrent Magnet Scraper/BT4G Torrent Magnet Scraper.vbproj" Id="19cab10d-3e85-42f6-bf7c-597f97ab06b5">
     <Platform Project="x64" />
   </Project>
+  <Project Path="BT4G Torrent Magnet Scraper.Tests/BT4G Torrent Magnet Scraper.Tests.vbproj" Id="5b0e6c1a-8d2f-4c3e-9a71-2f6d4e8b1c90">
+    <Platform Project="x64" />
+  </Project>
 </Solution>

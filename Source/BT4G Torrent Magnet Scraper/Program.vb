@@ -13,9 +13,7 @@ Imports System.Diagnostics
 Imports System.Globalization
 Imports System.IO
 Imports System.Linq
-Imports System.Security.Cryptography
 Imports System.Text
-Imports System.Text.RegularExpressions
 Imports System.Threading
 
 Imports DevCase.ThirdParty.Selenium
@@ -120,7 +118,8 @@ Module Program
 #If DEBUG Then
         Console.Title = consoleTitle
 #End If
-        Program.WriteColoredLine(" " & consoleTitle, ConsoleColor.Cyan)
+        Program.WriteColoredLine($" {consoleTitle}", ConsoleColor.Cyan)
+        Program.WriteColoredLine($" {AppGlobals.GitHUB_Repository_URL}", ConsoleColor.Cyan)
         Console.WriteLine("╭──────────────────────────────────────────────────────────────────────────────────╮")
         Console.WriteLine("│ Purpose:                                                                         │")
         Console.WriteLine("│   This application serves as an automated web scraper designed to extract        │")
@@ -156,7 +155,7 @@ Module Program
         Program.WriteColoredLine($"  Loaded {Program.forbiddenKeywords.Count:N0} forbidden keywords from config file.", ConsoleColor.Green)
         Program.WriteColoredLine($"  Loaded {Program.queryAdditionalParameters.Count:N0} custom query parameters from config file.", ConsoleColor.Green)
 
-        Program.processedUrlHashes = Program.LoadUrlsHistory()
+        Program.processedUrlHashes = ScraperHelper.LoadUrlsHistory(AppGlobals.HistoryFilePath)
         If Program.processedUrlHashes.Count > 0 Then
             Program.WriteColoredLine($"  Loaded {Program.processedUrlHashes.Count:N0} URL history hashes from history file.", ConsoleColor.Green)
         Else
@@ -243,194 +242,72 @@ Module Program
 #Region " Private Methods "
 
     ''' <summary>
-    ''' Loads the search terms, required keywords and forbidden keywords from the config text files into the corresponding HashSet fields.
+    ''' Loads the search terms, required keywords, forbidden keywords and additional query parameters 
+    ''' from the config text files into the corresponding HashSet fields.
     ''' <para></para>
-    ''' Exits with error if any file is missing or empty.
+    ''' Exits with error if the search terms file or the required keywords file is missing or empty.
+    ''' <para></para>
+    ''' The forbidden keywords file and the additional query parameters file are optional:
+    ''' if missing, a warning is shown and an empty list is used.
     ''' </summary>
     Private Sub LoadConfigFiles()
 
-        Dim searchTermsFileExists As Boolean = File.Exists(AppGlobals.SearchTermsFilePath)
-        Dim requiredKeywordsFileExists As Boolean = File.Exists(AppGlobals.RequiredKeywordsFilePath)
-        Dim forbiddenKeywordsFileExists As Boolean = File.Exists(AppGlobals.ForbiddenKeywordsFilePath)
-
-        If Not searchTermsFileExists Then
+        If Not File.Exists(AppGlobals.SearchTermsFilePath) Then
             Program.ExitWithMessage($"[ERROR] Search terms file not found: {AppGlobals.SearchTermsFilePath}", 1, ConsoleColor.Red)
+        End If
 
-        ElseIf Not requiredKeywordsFileExists Then
+        If Not File.Exists(AppGlobals.RequiredKeywordsFilePath) Then
             Program.ExitWithMessage($"[ERROR] Required keywords file not found: {AppGlobals.RequiredKeywordsFilePath}", 1, ConsoleColor.Red)
-
-        ElseIf Not forbiddenKeywordsFileExists Then
-            Program.WriteColoredLine($"[WARN] Forbidden keywords file not found: {AppGlobals.ForbiddenKeywordsFilePath}", ConsoleColor.Yellow)
-
         End If
 
         Program.searchTerms =
-            (From line In File.ReadAllLines(AppGlobals.SearchTermsFilePath, Program.TextEncoding)
-             Where Not String.IsNullOrWhiteSpace(line) AndAlso Not line.Trim().StartsWith("#"c)
-            ).ToHashSet()
+            ScraperHelper.ParseConfigLines(File.ReadAllLines(AppGlobals.SearchTermsFilePath, Program.TextEncoding), trimLines:=False)
 
         Program.requiredKeywords =
-            (From line In File.ReadAllLines(AppGlobals.RequiredKeywordsFilePath, Program.TextEncoding)
-             Where Not String.IsNullOrWhiteSpace(line) AndAlso Not line.Trim().StartsWith("#"c)
-            ).ToHashSet()
+            ScraperHelper.ParseConfigLines(File.ReadAllLines(AppGlobals.RequiredKeywordsFilePath, Program.TextEncoding), trimLines:=False)
 
-        Program.forbiddenKeywords =
-            (From line As String In File.ReadAllLines(AppGlobals.ForbiddenKeywordsFilePath, Program.TextEncoding)
-             Where Not String.IsNullOrWhiteSpace(line) AndAlso Not line.Trim().StartsWith("#"c)
-            ).ToHashSet()
+        Dim forbiddenKeywordsFileExists As Boolean = File.Exists(AppGlobals.ForbiddenKeywordsFilePath)
+        If forbiddenKeywordsFileExists Then
+            Program.forbiddenKeywords =
+                ScraperHelper.ParseConfigLines(File.ReadAllLines(AppGlobals.ForbiddenKeywordsFilePath, Program.TextEncoding), trimLines:=False)
+        Else
+            Program.WriteColoredLine($"[WARN] Forbidden keywords file not found: {AppGlobals.ForbiddenKeywordsFilePath}", ConsoleColor.Yellow)
+            Program.forbiddenKeywords = New HashSet(Of String)(StringComparer.Ordinal)
+        End If
 
-        Program.queryAdditionalParameters =
-            (From line As String In File.ReadAllLines(AppGlobals.QueryAdditionalParametersFilePath, Program.TextEncoding)
-             Let trimmed As String = line.Trim()
-             Where Not String.IsNullOrWhiteSpace(trimmed) AndAlso Not trimmed.StartsWith("#"c)
-             Select trimmed
-            ).ToHashSet()
+        If File.Exists(AppGlobals.QueryAdditionalParametersFilePath) Then
+            Program.queryAdditionalParameters =
+                ScraperHelper.ParseConfigLines(File.ReadAllLines(AppGlobals.QueryAdditionalParametersFilePath, Program.TextEncoding), trimLines:=True)
+        Else
+            Program.WriteColoredLine($"[WARN] Query additional parameters file not found: {AppGlobals.QueryAdditionalParametersFilePath}", ConsoleColor.Yellow)
+            Program.queryAdditionalParameters = New HashSet(Of String)(StringComparer.Ordinal)
+        End If
 
-        If Program.searchTerms Is Nothing OrElse Program.searchTerms.Count = 0 Then
+        If Program.searchTerms.Count = 0 Then
             Program.ExitWithMessage($"[ERROR] No search terms found in file: {AppGlobals.SearchTermsFilePath}", 2, ConsoleColor.Red)
+        End If
 
-        ElseIf Program.requiredKeywords Is Nothing OrElse Program.RequiredKeywords.Count = 0 Then
+        If Program.requiredKeywords.Count = 0 Then
             Program.ExitWithMessage($"[ERROR] No required keywords found in file: {AppGlobals.RequiredKeywordsFilePath}", 2, ConsoleColor.Red)
+        End If
 
-        ElseIf forbiddenKeywordsFileExists AndAlso Program.ForbiddenKeywords Is Nothing OrElse Program.ForbiddenKeywords.Count = 0 Then
+        If forbiddenKeywordsFileExists AndAlso Program.forbiddenKeywords.Count = 0 Then
             Program.WriteColoredLine($"[WARN] No forbidden keywords found in file: {AppGlobals.ForbiddenKeywordsFilePath}", ConsoleColor.Yellow)
-
         End If
     End Sub
 
     ''' <summary>
-    ''' Loads the history of already-processed detail page URLs from the history text file into a HashSet for quick lookup.
+    ''' Adds the given URL hash to the in-memory history and appends it to the history text file, 
+    ''' only if it was not already present.
     ''' </summary>
     ''' 
-    ''' <returns>
-    ''' Returns a HashSet containing the URLs of detail pages that have already been processed, loaded from the history text file.
-    ''' </returns>
-    Private Function LoadUrlsHistory() As HashSet(Of String)
-
-        Dim result As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-        If Not File.Exists(AppGlobals.HistoryFilePath) Then
-            Return result
-        End If
-
-        Dim lines As String() = File.ReadAllLines(AppGlobals.HistoryFilePath, Encoding.UTF8)
-        For Each line As String In lines
-            Dim trimmed As String = line.Trim()
-            If Not String.IsNullOrWhiteSpace(trimmed) AndAlso Not trimmed.StartsWith("#"c) Then
-                result.Add(trimmed)
-            End If
-        Next
-
-        Return result
-    End Function
-
-    ''' <summary>
-    ''' Adds the given URL to the history HashSet and appends it to the history text file if it
-    ''' </summary>
-    ''' 
-    ''' <param name="relHref">
-    ''' The relative URL of the torrent's detail page on bt4g. Not the magnet link or any other URL.
+    ''' <param name="urlHash">
+    ''' The hash portion of the relative URL of the torrent's detail page on BT4G. Not the magnet link or any other URL.
     ''' </param>
-    Private Sub AddUrlToHistory(relHref As String)
+    Private Sub AddUrlToHistory(urlHash As String)
 
-        If Program.processedUrlHashes.Add(relHref) Then
-            File.AppendAllText(AppGlobals.HistoryFilePath, relHref & Environment.NewLine, Program.TextEncoding)
-        End If
+        ScraperHelper.AppendUrlToHistory(AppGlobals.HistoryFilePath, Program.processedUrlHashes, urlHash, Program.TextEncoding)
     End Sub
-
-    ''' <summary>
-    ''' Appends the given torrent name and magnet URL to the output text file in a structured format, 
-    ''' along with a predefined list of trackers.
-    ''' </summary>
-    ''' 
-    ''' <param name="torrentName">
-    ''' The name of the torrent to be saved in the output file.
-    ''' </param>
-    ''' 
-    ''' <param name="magnetUrl">
-    ''' The magnet URL of the torrent to be saved in the output file.
-    ''' </param>
-    ''' 
-    ''' <param name="outputFilePath">
-    ''' The file path of the output text file where the torrent name and magnet URL should be appended.
-    ''' </param>
-    Private Sub WriteMagnetTorrentResult(torrentName As String, magnetUrl As String, outputFilePath As String)
-
-        Const trackers As String =
-            "&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce" &
-            "&tr=udp%3A%2F%2Fopen.demonii.com%3A1337%2Fannounce" &
-            "&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce" &
-            "&tr=udp%3A%2F%2Fwepzone.net%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Fudp.tracker.projectk.org%3A23333%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.theoks.net%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.srv00.com%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.qu.ax%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.plx.im%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.gmi.gd%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.fnix.net%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker.004430.xyz%3A1337%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftracker-udp.gbitt.info%3A80%2Fannounce" &
-            "&tr=udp%3A%2F%2Ftorrents.tmtime.dev%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Ft.overflow.biz%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Fmartin-gebhardt.eu%3A25%2Fannounce" &
-            "&tr=udp%3A%2F%2Fipv4announce.sktorrent.eu%3A6969%2Fannounce" &
-            "&tr=udp%3A%2F%2Fevan.im%3A6969%2Fannounce" &
-            "&tr=https%3A%2F%2Ftracker.bt4g.com%3A443%2Fannounce"
-
-        Dim line As String = $"{torrentName}{Environment.NewLine}{magnetUrl}{trackers}"
-
-        If Not Directory.Exists(AppGlobals.OutputDirPath) Then
-            Directory.CreateDirectory(AppGlobals.OutputDirPath)
-        End If
-        File.AppendAllText(outputFilePath, line & Environment.NewLine & Environment.NewLine, Program.TextEncoding)
-        ' Program.WriteColoredLine($"  [MAGNET SAVED ] {torrentName}",ConsoleColor.Green)
-    End Sub
-
-    ''' <summary>
-    ''' Checks if the given text contains any of the keywords in the provided set, using case-insensitive comparison.
-    ''' </summary>
-    ''' 
-    ''' <param name="text">
-    ''' The text to check for keywords.
-    ''' </param>
-    ''' 
-    ''' <param name="keywords">
-    ''' The set of keywords to look for in the text. If any keyword is found, the function returns True.
-    ''' </param>
-    ''' 
-    ''' <returns>
-    ''' Returns True if any of the keywords are present in the text; 
-    ''' otherwise, returns False.
-    ''' </returns>
-    Private Function ContainsAnyKeyword(text As String, keywords As HashSet(Of String)) As Boolean
-
-        For Each kw As String In keywords
-            If text.IndexOf(kw, StringComparison.OrdinalIgnoreCase) >= 0 Then
-                Return True
-            End If
-        Next kw
-
-        Return False
-    End Function
-
-    ''' <summary>
-    ''' Determines if the given page source indicates that the torrent has been removed due to a DMCA takedown.
-    ''' </summary>
-    ''' <param name="pageSource"></param>
-    ''' 
-    ''' <returns>
-    ''' Returns True if the page source indicates that the torrent has been removed due to a DMCA takedown; 
-    ''' otherwise, returns False.
-    ''' </returns>
-    Private Function IsDmcaRemoved(pageSource As String) As Boolean
-
-        Return pageSource.IndexOf("content has been deleted", StringComparison.OrdinalIgnoreCase) >= 0 OrElse
-               (
-                pageSource.IndexOf("request", StringComparison.OrdinalIgnoreCase) >= 0 AndAlso
-                pageSource.IndexOf("DMCA", StringComparison.OrdinalIgnoreCase) >= 0
-               )
-    End Function
 
     ''' <summary>
     ''' Navigates to predefined test URLs in order to initialize and persist
@@ -447,16 +324,16 @@ Module Program
         SeleniumHelper.NavigateTo(driver, AppGlobals.Bt4gTestUrl)
 
         If driver.IsCloudflareChallengeRequired() Then
-            driver.WaitToCompleteCloudflareChallenge(timeoutSeconds:=CInt(TimeSpan.FromMinutes(30).TotalMilliseconds))
+            driver.WaitToCompleteCloudflareChallenge(timeoutSeconds:=CInt(TimeSpan.FromMinutes(30).TotalSeconds))
         End If
         Program.WriteColoredLine("Completed Cloudflare challenge for BT4G test URL.", ConsoleColor.Green)
         Console.WriteLine()
 
         Program.WriteColoredLine("Navigating To downloadtorrentfile random URL to initialize Cloudflare cookie session...", ConsoleColor.Cyan)
-        Dim randomHexString As String = Program.GenerateRandomHexString(40)
-        SeleniumHelper.NavigateTo(driver, $"{AppGlobals.DownloadTorrentFilegTestUrl}\{randomHexString}")
+        Dim randomHexString As String = ScraperHelper.GenerateRandomHexString(40)
+        SeleniumHelper.NavigateTo(driver, ScraperHelper.CombineUrl(AppGlobals.DownloadTorrentFilegTestUrl, randomHexString))
         If driver.IsCloudflareChallengeRequired() Then
-            driver.WaitToCompleteCloudflareChallenge(timeoutSeconds:=CInt(TimeSpan.FromMinutes(30).TotalMilliseconds))
+            driver.WaitToCompleteCloudflareChallenge(timeoutSeconds:=CInt(TimeSpan.FromMinutes(30).TotalSeconds))
         End If
         Program.WriteColoredLine("Completed Cloudflare challenge for downloadtorrentfile test URL.", ConsoleColor.Green)
         Console.WriteLine()
@@ -477,23 +354,16 @@ Module Program
     Private Sub ProcessSearchTerm(driver As ChromeDriver,
                                   searchTerm As String)
 
-        Dim outputFilePath As String = $"{AppGlobals.OutputDirPath}\{searchTerm}.txt"
+        Dim outputFilePath As String = ScraperHelper.GetOutputFilePath(AppGlobals.OutputDirPath, searchTerm)
 
-        Dim encodedTerm As String = Uri.EscapeDataString(searchTerm)
         Dim pageNumber As Integer = 1
 
         Dim totalItems As Integer = 0
         Dim currentItemIndex As Integer = 0
 
-        Dim additionalParametersFormatted As String =
-            If(Program.queryAdditionalParameters IsNot Nothing AndAlso Program.queryAdditionalParameters.Count > 0,
-                "&" & String.Join("&", Program.queryAdditionalParameters), String.Empty)
-
         Do
             Dim pageUrl As String =
-                If(pageNumber = 1,
-                    $"{AppGlobals.BaseBt4gUrl}/search?q={encodedTerm}{additionalParametersFormatted}",
-                    $"{AppGlobals.BaseBt4gUrl}/search?q={encodedTerm}{additionalParametersFormatted}&p={pageNumber}")
+                ScraperHelper.BuildSearchPageUrl(AppGlobals.BaseBt4gUrl, searchTerm, Program.queryAdditionalParameters, pageNumber)
 
             Program.WriteColoredLine($"  [PAGE {pageNumber:N0}] Navigating to {pageUrl}...", ConsoleColor.Cyan)
             SeleniumHelper.NavigateTo(driver, pageUrl)
@@ -505,7 +375,7 @@ Module Program
             driver.WaitForPageReady()
 
             If Not driver.Url.Equals(pageUrl, StringComparison.InvariantCultureIgnoreCase) Then
-                Throw New Exception("Current browser URL differs from expected URL " & $" ({driver.Url} -> {pageUrl})")
+                Throw New InvalidOperationException($"Current browser URL differs from expected URL ({driver.Url} -> {pageUrl})")
             End If
             Program.WriteColoredLine($"  [PAGE {pageNumber:N0}] Page loaded.", ConsoleColor.Cyan)
 
@@ -524,13 +394,10 @@ Module Program
             doc.LoadHtml(pageSource)
 
             If totalItems = 0 Then
-                Dim countNode As HtmlNode = doc.DocumentNode.SelectSingleNode("//p[contains(@class, 'notion-result-info')]/span[contains(@class, 'badge')][1]")
+                Dim countNode As HtmlNode = ScraperHelper.FindTotalItemsNode(doc)
                 If countNode IsNot Nothing Then
-                    Dim nodeText As String = countNode.InnerText.Trim()
-
-                    ' Clean any unexpected character and verify it is a valid integer
-                    If Regex.IsMatch(nodeText, "^\d+$") Then
-                        totalItems = Convert.ToInt32(nodeText)
+                    ' Verify it is a valid integer (digits only) that fits in an Int32.
+                    If ScraperHelper.TryParseTotalItems(countNode.InnerText, totalItems) Then
                         Program.WriteColoredLine($"  [PAGE {pageNumber:N0}] Found {totalItems:N0} total items for search term: '{searchTerm}'", ConsoleColor.Blue)
                     End If
                 Else
@@ -538,10 +405,9 @@ Module Program
                 End If
             End If
 
-            Dim resultNodes As HtmlNodeCollection =
-                doc.DocumentNode.SelectNodes("//div[contains(@class,'notion-list-item-title')]")
+            Dim resultNodes As List(Of HtmlNode) = ScraperHelper.GetResultTitleNodes(doc)
 
-            If resultNodes Is Nothing OrElse resultNodes.Count = 0 Then
+            If resultNodes.Count = 0 Then
                 Program.WriteColoredLine($"  [PAGE {pageNumber:N0}] Zero items in this page after HTML parse. Stopping.", ConsoleColor.White)
                 Program.WriteColoredLine($"  [PAGE {pageNumber:N0}] Waiting {AppGlobals.ThrottlePageMs \ 1000} seconds to continue...", ConsoleColor.DarkGray)
                 Thread.Sleep(AppGlobals.ThrottlePageMs)
@@ -554,12 +420,11 @@ Module Program
             For Each node As HtmlNode In resultNodes
                 currentItemIndex += 1
                 Try
-                    Program.ProcessResultNode(driver, node, OutputFilePath, currentItemIndex, totalItems)
+                    Program.ProcessResultNode(driver, node, outputFilePath, currentItemIndex, totalItems)
                 Catch itemEx As Exception
-                    Dim currentItemIndexPadding As Integer = totalItems.ToString().Length
-                    Dim currentItemIndexPadded As String = $"{currentItemIndex.ToString("N0").PadLeft(currentItemIndexPadding, " "c):N0}"
+                    Dim currentItemIndexPadded As String = ScraperHelper.FormatItemIndex(currentItemIndex, totalItems, Program.CultureInfoEnUs)
 
-                    Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [X ITEM NODE ERROR            ] {itemEx.GetType().Name}: {itemEx.Message}", ConsoleColor.Red)
+                    Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [X ITEM NODE ERROR            ] {itemEx.GetType().Name}: {itemEx.Message}", ConsoleColor.Red)
                 End Try
             Next
             Console.WriteLine()
@@ -646,52 +511,36 @@ Module Program
     Private Sub ProcessResultNode(driver As ChromeDriver, node As HtmlNode, outputFilePath As String,
                                   currentItemIndex As Integer, totalItems As Integer)
 
-        Dim currentItemIndexPadding As Integer = totalItems.ToString().Length
-        Dim currentItemIndexPadded As String = $"{currentItemIndex.ToString("N0").PadLeft(currentItemIndexPadding, " "c):N0}"
+        Dim currentItemIndexPadded As String = ScraperHelper.FormatItemIndex(currentItemIndex, totalItems, Program.CultureInfoEnUs)
 
-        ' ── Extract name + detail URL from Block HTML 1 ───────────────────
-        Dim linkNode As HtmlNode = node.SelectSingleNode(".//a[contains(@href, '/magnet/')]")
-        If linkNode Is Nothing Then
-            Throw New InvalidOperationException("Could not find any <a> link containing href='/magnet/' inside the current result node.")
-        End If
+        ' ── Extract name + detail URL from the result node ────────────────
+        Dim searchResult As TorrentSearchResult = ScraperHelper.ExtractTorrentSearchResult(node)
+        Dim torrentName As String = searchResult.Name
+        Dim relHref As String = searchResult.RelativeHref
+        Dim urlHash As String = searchResult.UrlHash
 
-        Dim torrentName As String = linkNode.GetAttributeValue("title", String.Empty)
-        If torrentName.Length = 0 Then
-            torrentName = HtmlEntity.DeEntitize(linkNode.InnerText).Trim()
-        End If
-        If torrentName.Length = 0 Then
-            Throw New InvalidOperationException("Empty torrent name in notion-list-item-title node.")
-        End If
-
-        Dim relHref As String = linkNode.GetAttributeValue("href", String.Empty)
-        If relHref.Length = 0 Then
-            Throw New InvalidOperationException($"Empty href in notion-list-item-title node for: {torrentName}")
-        End If
-
-        Dim urlHash As String = relHref.Replace("/magnet/", "")
-
-        Dim shortTorrentName As String = If(torrentName.Length > 100, $"{torrentName.Substring(0, 99)}…", torrentName)
+        Dim shortTorrentName As String = ScraperHelper.ShortenTorrentName(torrentName)
 
         ' ── Gates ─────────────────────────────────────────────────────────
         If Program.processedUrlHashes.Contains(urlHash) Then
-            Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [* MAGNET ALREADY IN HISTORY  ] {shortTorrentName}", ConsoleColor.DarkGray)
+            Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [* MAGNET ALREADY IN HISTORY  ] {shortTorrentName}", ConsoleColor.DarkGray)
             Program.totalSkippedMagnetCount += 1
             Return
         End If
 
-        If Program.ContainsAnyKeyword(torrentName, ForbiddenKeywords) Then
-            Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [X FORBIDDEN MATCH FOUND      ] {shortTorrentName}", ConsoleColor.DarkYellow)
+        If ScraperHelper.ContainsAnyKeyword(torrentName, Program.forbiddenKeywords) Then
+            Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [X FORBIDDEN MATCH FOUND      ] {shortTorrentName}", ConsoleColor.DarkYellow)
             Program.totalSkippedMagnetCount += 1
             Return
         End If
 
-        If Not Program.ContainsAnyKeyword(torrentName, RequiredKeywords) Then
-            Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [? NO REQUIRED KEYWORD FOUND  ] {shortTorrentName}", ConsoleColor.White)
+        If Not ScraperHelper.ContainsAnyKeyword(torrentName, Program.requiredKeywords) Then
+            Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [? NO REQUIRED KEYWORD FOUND  ] {shortTorrentName}", ConsoleColor.White)
             Program.totalSkippedMagnetCount += 1
             Return
         End If
 
-        Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [> PROCESSING MAGNET PAGE     ] {shortTorrentName}", ConsoleColor.DarkGreen)
+        Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [> PROCESSING MAGNET PAGE     ] {shortTorrentName}", ConsoleColor.DarkGreen)
 
         ' ── Navigate to detail page ─────────────────────────
         Dim detailUrl As String = $"{AppGlobals.BaseBt4gUrl}{relHref}"
@@ -699,8 +548,8 @@ Module Program
         Dim detailSource As String = driver.PageSource
 
         ' ── DMCA check ─────────────────────────────────────────────────────
-        If Program.IsDmcaRemoved(detailSource) Then
-            Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [! DMCA TAKEDOWN NOTICE       ] {shortTorrentName}", ConsoleColor.Yellow)
+        If ScraperHelper.IsDmcaRemoved(detailSource) Then
+            Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [! DMCA TAKEDOWN NOTICE       ] {shortTorrentName}", ConsoleColor.Yellow)
             Program.AddUrlToHistory(urlHash)
             Program.totalSkippedMagnetCount += 1
             Return
@@ -710,25 +559,12 @@ Module Program
         Dim detailDoc As New HtmlDocument()
         detailDoc.LoadHtml(detailSource)
 
-        Dim magnetBtnNode As HtmlNode = If(detailDoc.DocumentNode.SelectSingleNode(
-            "//a[contains(@href,'downloadtorrentfile.com') and contains(.,'Magnet')]"), detailDoc.DocumentNode.SelectSingleNode(
-                "//a[contains(@href,'downloadtorrentfile.com')]"))
-
-        If magnetBtnNode Is Nothing Then
-            Program.WriteColoredLine($"  [{currentItemIndexPadded:N0} / {totalItems:N0}] [X NO BUTTON FOUND            ] No Magnet button found: {shortTorrentName}", ConsoleColor.Red)
+        Dim magnetPageHref As String = Nothing
+        If Not ScraperHelper.TryGetMagnetPageHref(detailDoc, magnetPageHref) Then
+            Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [X NO BUTTON FOUND            ] No Magnet button found: {shortTorrentName}", ConsoleColor.Red)
             Program.AddUrlToHistory(urlHash)
             Program.totalFailedMagnetCount += 1
             Return
-        End If
-
-        Dim magnetPageHref As String = magnetBtnNode.GetAttributeValue("href", String.Empty)
-
-        If magnetPageHref.Length = 0 Then
-            Throw New InvalidOperationException($"Magnet button href empty for: {shortTorrentName}")
-        End If
-
-        If magnetPageHref.StartsWith("//", StringComparison.Ordinal) Then
-            magnetPageHref = $"https:{magnetPageHref}"
         End If
 
         ' ── Navigate to downloadtorrentfile.com (Block HTML 3) ─────────────
@@ -737,7 +573,7 @@ Module Program
         ' ── Wait for JS to populate <a id="open"> with the magnet URL ──────
         Dim magnetUrl As String = Program.WaitForMagnetHref(driver)
 
-        Program.WriteMagnetTorrentResult(torrentName, magnetUrl, outputFilePath)
+        ScraperHelper.AppendMagnetResult(outputFilePath, torrentName, magnetUrl, Program.TextEncoding)
         Program.AddUrlToHistory(urlHash)
         Program.totalSavedMagnetCount += 1
 
@@ -775,41 +611,15 @@ Module Program
                 End Try
 
                 Dim hrefVal As String = el.GetAttribute("href")
-                Return If(hrefVal IsNot Nothing AndAlso hrefVal.StartsWith("magnet:", StringComparison.OrdinalIgnoreCase), el, Nothing)
+                Return If(ScraperHelper.IsMagnetUri(hrefVal), el, Nothing)
             End Function)
 
         Dim magnetUrl As String = openLink.GetAttribute("href")
-        If magnetUrl Is Nothing OrElse magnetUrl.Length = 0 Then
-            Throw New InvalidOperationException("#open href is null/empty after successful wait.")
+        If Not ScraperHelper.IsMagnetUri(magnetUrl) Then
+            Throw New InvalidOperationException("#open href is not a magnet link after successful wait.")
         End If
 
         Return magnetUrl
-    End Function
-
-    Private Function GenerateRandomHexString(length As Integer) As String
-
-        If length <= 0 Then
-            Throw New ArgumentOutOfRangeException(NameOf(length))
-        End If
-
-        If (length Mod 2) <> 0 Then
-            Throw New ArgumentException("HEX string length must be even.", NameOf(length))
-        End If
-
-        Dim byteCount As Integer = length \ 2
-        Dim randomBytes(byteCount - 1) As Byte
-
-        Using rng As RandomNumberGenerator = RandomNumberGenerator.Create()
-            rng.GetBytes(randomBytes)
-        End Using
-
-        Dim builder As New StringBuilder(length)
-
-        For Each currentByte As Byte In randomBytes
-            builder.Append(currentByte.ToString("X2"))
-        Next
-
-        Return builder.ToString()
     End Function
 
     ''' <summary>

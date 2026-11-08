@@ -873,7 +873,7 @@ try {
         ''' otherwise, <see langword="False"/>.
         ''' </returns>
         <DebuggerStepThrough>
-        Private Function IsResourceUrlLogEntryMessage(msg As String) As Boolean
+        Friend Function IsResourceUrlLogEntryMessage(msg As String) As Boolean
 
             Try
                 Dim url As String = msg.Substring(0, msg.IndexOf(" "c))

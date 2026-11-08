@@ -1,6 +1,7 @@
 ﻿Imports System.Resources
 Imports System
 Imports System.Reflection
+Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
 
 ' General Information about an assembly is controlled through the following
@@ -18,6 +19,9 @@ Imports System.Runtime.InteropServices
 
 <Assembly: ComVisible(False)>
 
+' Allows the unit test project to access the Friend members of this assembly.
+<Assembly: InternalsVisibleTo("BT4G Torrent Magnet Scraper.Tests")>
+
 'The following GUID is for the ID of the typelib if this project is exposed to COM
 <Assembly: Guid("abbbdb65-fa92-4a11-8aa5-0ec7acb80b61")>
 
@@ -29,6 +33,6 @@ Imports System.Runtime.InteropServices
 '      Revision
 '
 
-<Assembly: AssemblyVersion("1.0.0.0")>
-<Assembly: AssemblyFileVersion("1.0.0.0")>
+<Assembly: AssemblyVersion("1.1.0.0")>
+<Assembly: AssemblyFileVersion("1.1.0.0")>
 <Assembly: NeutralResourcesLanguage("en")>

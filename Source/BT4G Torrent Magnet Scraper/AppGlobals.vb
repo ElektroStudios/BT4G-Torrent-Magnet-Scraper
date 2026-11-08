@@ -19,6 +19,13 @@ Imports System.IO
 Public Module AppGlobals
 
     ''' <summary>
+    ''' The URL of the GitHub repository for this application.
+    ''' <para></para>
+    ''' Used for linking to the project page in the application UI.
+    ''' </summary>
+    Friend Const GitHUB_Repository_URL As String = "https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper"
+
+    ''' <summary>
     ''' The title of the application.
     ''' </summary>
     Friend ReadOnly AppTitleAndVersion As String =
