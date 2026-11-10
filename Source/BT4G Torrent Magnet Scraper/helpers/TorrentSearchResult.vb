@@ -9,14 +9,14 @@ Option Infer Off
 #Region " Imports "
 
 Imports System.Diagnostics
+Imports System.Diagnostics.CodeAnalysis
 
 #End Region
-
-#Disable Warning S1200 ' Muzzle SonarQube: Move classes into named namespaces
 
 ''' <summary>
 ''' Represents the essential data extracted from a single item of a BT4G search results page.
 ''' </summary>
+<SuppressMessage("Minor Code Smell", "S1200:Classes should not be defined in the global namespace", Justification:="By design: RootNamespace is intentionally empty.")>
 Friend NotInheritable Class TorrentSearchResult
 
 #Region " Properties "
@@ -85,4 +85,3 @@ Friend NotInheritable Class TorrentSearchResult
 #End Region
 
 End Class
-#Enable Warning S1200
