@@ -12,6 +12,8 @@ Imports System.Diagnostics
 
 #End Region
 
+#Disable Warning S1200 ' Muzzle SonarQube: Move classes into named namespaces
+
 ''' <summary>
 ''' Represents the essential data extracted from a single item of a BT4G search results page.
 ''' </summary>
@@ -83,3 +85,4 @@ Friend NotInheritable Class TorrentSearchResult
 #End Region
 
 End Class
+#Enable Warning S1200

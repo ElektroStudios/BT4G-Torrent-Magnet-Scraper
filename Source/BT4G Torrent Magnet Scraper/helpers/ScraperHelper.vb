@@ -132,7 +132,7 @@ Friend Module ScraperHelper
     ''' <summary>
     ''' The regular expression that validates the text of the "Found N items" badge.
     ''' </summary>
-    Private ReadOnly DigitsOnlyRegex As New Regex("^\d+$", RegexOptions.CultureInvariant)
+    Private ReadOnly DigitsOnlyRegex As New Regex("^\d+$", RegexOptions.CultureInvariant, TimeSpan.FromSeconds(5000))
 
 #End Region
 
