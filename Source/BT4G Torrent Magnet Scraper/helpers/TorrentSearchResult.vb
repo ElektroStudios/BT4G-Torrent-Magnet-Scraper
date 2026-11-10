@@ -16,8 +16,7 @@ Imports System.Diagnostics.CodeAnalysis
 ''' <summary>
 ''' Represents the essential data extracted from a single item of a BT4G search results page.
 ''' </summary>
-<SuppressMessage("Minor Code Smell", "S1200:Classes should not be defined in the global namespace", Justification:="By design: RootNamespace is intentionally empty.")>
-Friend NotInheritable Class TorrentSearchResult
+Friend NotInheritable Class TorrentSearchResult ' NOSONAR
 
 #Region " Properties "
 
