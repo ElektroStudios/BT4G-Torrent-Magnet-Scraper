@@ -1,6 +1,9 @@
 ﻿# BT4G Torrent Magnet Scraper Change Log 📋
 
-## v1.1 🔄
+## v1.2
+
+### Security & Filtering 🛡️
+- Added a mandatory, hardcoded keyword filter (`Mandatory_Forbidden_Keywords`) embedded directly into the application assembly. This acts as a strict system-level blacklist to block illicit content from the scraper results, overriding any user rules.
 
 ### Bug fixes 🐞
 - Fixed a crash at startup when the optional `Forbidden Keywords.txt` file was missing (a warning was shown, but the file was read anyway).
@@ -17,5 +20,5 @@
 - Moved the scraping logic that does not need the browser from `Program.vb` to the new `ScraperHelper` module.
 - Added a unit test project (MSTest, 180 tests) for the configuration and history parsing, keyword filtering, URL building, HTML parsing, output formatting and the Selenium cache path helpers.
 
-## v1.0 🔄
+## v1.0
 Initial Release.

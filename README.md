@@ -121,7 +121,7 @@ The program runs Selenium in the background to launch and automate a Chrome brow
 Also, you can read a manual in HTML format by clicking [here](https://htmlpreview.github.io/?https://github.com/ElektroStudios/BT4G-Torrent-Magnet-Scraper/blob/main/Source/BT4G%20Scraper/manual/BT4G%20Torrent%20Magnet%20Scraper%20Manual.html).
 
 > [!NOTE]
-> A '**# Porn Preset.zip**' file is included for my own convenience containing personal configuration that I've used in the past, though you will need to customize it to your own preferences.
+> A sample preset file, '**# Porn Preset.zip'**, is included as a baseline configuration for specific use cases. You can use it as a starting point and customize the settings to match your own preferences. That said, the 'Forbidden keywords.txt' document inside that preset contains a critical blacklist for illicit material. It is highly advised to keep this specific section to help ensure your tracking results remain compliant and safe to browse.
 
 ## 💡 Performance Recommendation
 

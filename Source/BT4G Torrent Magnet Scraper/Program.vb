@@ -56,6 +56,13 @@ Module Program
     Private forbiddenKeywords As HashSet(Of String)
 
     ''' <summary>
+    ''' The list of mandatory forbidden keywords that are hardcoded in the application resources. 
+    ''' <para></para>
+    ''' If any of these keywords are present in the torrent name, it will be skipped.
+    ''' </summary>
+    Private ReadOnly mandatoryForbiddenKeywords As New HashSet(Of String)(StringComparison.OrdinalIgnoreCase)
+
+    ''' <summary>
     ''' The list of additional parameters to append to the search URL when querying the BT4G website. 
     ''' <para></para>
     ''' For example, "orderby=seeders" to sort results by number of seeders.
@@ -150,10 +157,12 @@ Module Program
 
         Program.WriteColoredLine("Loading user configuration and cached items...", Console.ForegroundColor)
         Program.LoadConfigFiles()
-        Program.WriteColoredLine($"  Loaded {Program.searchTerms.Count:N0} search terms from config file.", ConsoleColor.Green)
-        Program.WriteColoredLine($"  Loaded {Program.requiredKeywords.Count:N0} required keywords from config file.", ConsoleColor.Green)
-        Program.WriteColoredLine($"  Loaded {Program.forbiddenKeywords.Count:N0} forbidden keywords from config file.", ConsoleColor.Green)
-        Program.WriteColoredLine($"  Loaded {Program.queryAdditionalParameters.Count:N0} custom query parameters from config file.", ConsoleColor.Green)
+        Program.WriteColoredLine($"  Loaded {Program.searchTerms.Count:N0} search terms from user config file.", ConsoleColor.Green)
+        Program.WriteColoredLine($"  Loaded {Program.requiredKeywords.Count:N0} required keywords from user config file.", ConsoleColor.Green)
+        Program.WriteColoredLine($"  Loaded {Program.forbiddenKeywords.Count:N0} forbidden keywords from user config file.", ConsoleColor.Green)
+        Program.LoadMandatoryKeywords()
+        Program.WriteColoredLine($"  Loaded {Program.mandatoryForbiddenKeywords.Count:N0} mandatory forbidden keywords from embedded resource file.", ConsoleColor.Green)
+        Program.WriteColoredLine($"  Loaded {Program.queryAdditionalParameters.Count:N0} custom query parameters from user config file.", ConsoleColor.Green)
 
         Program.processedUrlHashes = ScraperHelper.LoadUrlsHistory(AppGlobals.HistoryFilePath)
         If Program.processedUrlHashes.Count > 0 Then
@@ -528,6 +537,12 @@ Module Program
             Return
         End If
 
+        If ScraperHelper.ContainsAnyKeyword(torrentName, Program.mandatoryForbiddenKeywords) Then
+            Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [X MANDATORY FORBIDDEN MATCH FOUND      ] {shortTorrentName}", ConsoleColor.DarkYellow)
+            Program.totalSkippedMagnetCount += 1
+            Return
+        End If
+
         If ScraperHelper.ContainsAnyKeyword(torrentName, Program.forbiddenKeywords) Then
             Program.WriteColoredLine($"  [{currentItemIndexPadded} / {totalItems:N0}] [X FORBIDDEN MATCH FOUND      ] {shortTorrentName}", ConsoleColor.DarkYellow)
             Program.totalSkippedMagnetCount += 1
@@ -594,6 +609,7 @@ Module Program
     ''' <returns>
     ''' Returns the magnet URL extracted from the href attribute of the 'id="open"' element once it is present and populated.
     ''' </returns>
+    <DebuggerStepThrough>
     Private Function WaitForMagnetHref(driver As ChromeDriver) As String
 
         Dim wait As New WebDriverWait(driver, TimeSpan.FromSeconds(60))
@@ -621,6 +637,33 @@ Module Program
 
         Return magnetUrl
     End Function
+
+    ''' <summary>
+    ''' Loads the hardcoded illicit keywords from the embedded resource into memory.
+    ''' </summary>
+    ''' 
+    ''' <exception cref="InvalidOperationException">
+    ''' Thrown if the resource is missing or empty.
+    ''' </exception>
+    <DebuggerStepThrough>
+    Private Sub LoadMandatoryKeywords()
+
+        Dim rawResourceData As String = My.Resources.Mandatory_Forbidden_Keywords
+
+        If String.IsNullOrWhiteSpace(rawResourceData) Then
+            Throw New InvalidOperationException("CRITICAL ERROR: Mandatory forbidden keywords resource is missing or empty.")
+        End If
+
+        ' Split by newlines, removing completely empty lines but preserving internal/trailing spaces.
+        Dim lines As String() = rawResourceData.Split({vbCrLf, vbCr, vbLf}, StringSplitOptions.RemoveEmptyEntries)
+
+        For Each line As String In lines
+            ' We only trim for the comment check, but we STORE the exact, raw line to preserve intentional spaces.
+            If Not String.IsNullOrWhiteSpace(line) AndAlso Not line.TrimStart().StartsWith("#") Then
+                Program.mandatoryForbiddenKeywords.Add(line)
+            End If
+        Next
+    End Sub
 
     ''' <summary>
     ''' Writes a message to the console in a specified foreground color, 

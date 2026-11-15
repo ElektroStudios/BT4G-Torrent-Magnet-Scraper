@@ -1,0 +1,474 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                   #
+# MANDATORY FORBIDDEN KEYWORDS FILTER                               #
+#                                                                   #
+# This embedded resource enforces a strict, hardcoded filter to     #
+# block illicit and strictly prohibited content from the scraper.   #
+#                                                                   #
+# If any of these keywords are present in the torrent name, the     #
+# result is immediately discarded. This is a core safety mechanism  #
+# and will override any user settings or "Required Keywords.txt".   #
+#                                                                   #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+# -----------------------------------------------------------------------
+# NOTE: These terms may cause occasional false positives, potentially 
+# skipping legitimate music tracks, artist names, or movie titles 
+# (e.g., "kiddie" songs or specific indie bands). 
+#
+# This is a strictly intentional design trade-off. Given the unpredictable 
+# nature of public torrent trackers, the severe legal and safety risks 
+# associated with these keywords far outweigh the minor inconvenience of 
+# a few missed standard results. A zero-tolerance policy is enforced here.
+# -----------------------------------------------------------------------
+ kid 
+ kids 
+kiddy
+kiddie
+lolita
+# -----------------------------------------------------------------------
+
+# ------------------
+# Illegal / Pedophile
+# ------------------
+pedoph
+pedofi
+pthc
+ pedo
++pedo
+-pedo
+.pedo
+_pedo
+[pedo
+child porn
+child+porn
+child-porn
+child.porn
+child_porn
+childporn
+kid cam
+kid+cam
+kid-cam
+kid.cam
+kid_cam
+kidcam
+mylola
+lolita4
+pedo daddy
+pedo+daddy
+pedo-daddy
+pedo.daddy
+pedo_daddy
+pedodaddy
+pedo kid
+pedo+kid
+pedo-kid
+pedo.kid
+pedo_kid
+pedokid
+pedo mother
+pedo+mother
+pedo-mother
+pedo.mother
+pedo_mother
+pedomother
+pedo orgy
+pedo+orgy
+pedo-orgy
+pedo.orgy
+pedo_orgy
+pedoorgy
+pedo land
+pedo+land
+pedo-land
+pedo.land
+pedo_land
+pedoland
+pedo vater
+pedo+vater
+pedo-vater
+pedo.vater
+pedo_vater
+pedovater
+preteen
+pre teen
+pre+teen
+pre-teen
+pre.teen
+pre_teen
+kiddyfuck
+childlovers
+
+ 1 year old
+ 2 year old
+ 3 year old
+ 4 year old
+ 5 year old
+ 6 year old
+ 7 year old
+ 8 year old
+ 9 year old
+_1_year_old
+_2_year_old
+_3_year_old
+_4_year_old
+_5_year_old
+_6_year_old
+_7_year_old
+_8_year_old
+_9_year_old
+-1-year-old
+-2-year-old
+-3-year-old
+-4-year-old
+-5-year-old
+-6-year-old
+-7-year-old
+-8-year-old
+-9-year-old
+.1.year.old
+.2.year.old
+.3.year.old
+.4.year.old
+.5.year.old
+.6.year.old
+.7.year.old
+.8.year.old
+.9.year.old
+.1yearold
+.2yearold
+.3yearold
+.4yearold
+.5yearold
+.6yearold
+.7yearold
+.8yearold
+.9yearold
+-1yearold
+-2yearold
+-3yearold
+-4yearold
+-5yearold
+-6yearold
+-7yearold
+-8yearold
+-9yearold
++1yearold
++2yearold
++3yearold
++4yearold
++5yearold
++6yearold
++7yearold
++8yearold
++9yearold
++1+year+old
++2+year+old
++3+year+old
++4+year+old
++5+year+old
++6+year+old
++7+year+old
++8+year+old
++9+year+old
+_1yearold
+_2yearold
+_3yearold
+_4yearold
+_5yearold
+_6yearold
+_7yearold
+_8yearold
+_9yearold
+
+10 year old
+11 year old
+12 year old
+13 year old
+14 year old
+15 year old
+16 year old
+17 year old
+10yearold
+11yearold
+12yearold
+13yearold
+14yearold
+15yearold
+16yearold
+17yearold
+10+year+old
+11+year+old
+12+year+old
+13+year+old
+14+year+old
+15+year+old
+16+year+old
+17+year+old
+10_year_old
+11_year_old
+12_year_old
+13_year_old
+14_year_old
+15_year_old
+16_year_old
+17_year_old
+10-year-old
+11-year-old
+12-year-old
+13-year-old
+14-year-old
+15-year-old
+16-year-old
+17-year-old
+10.year.old
+11.year.old
+12.year.old
+13.year.old
+14.year.old
+15.year.old
+16.year.old
+17.year.old
+
+ 1y
+ 2y
+ 3y
+ 4y
+ 5y
+ 6y
+ 7y
+ 8y
+ 9y
+.1y
+.2y
+.3y
+.4y
+.5y
+.6y
+.7y
+.8y
+.9y
+-1y
+-2y
+-3y
+-4y
+-5y
+-6y
+-7y
+-8y
+-9y
++1y
++2y
++3y
++4y
++5y
++6y
++7y
++8y
++9y
+_1y
+_2y
+_3y
+_4y
+_5y
+_6y
+_7y
+_8y
+_9y
++1+y
++2+y
++3+y
++4+y
++5+y
++6+y
++7+y
++8+y
++9+y
+.1.y
+.2.y
+.3.y
+.4.y
+.5.y
+.6.y
+.7.y
+.8.y
+.9.y
+-1-y
+-2-y
+-3-y
+-4-y
+-5-y
+-6-y
+-7-y
+-8-y
+-9-y
+_1_y
+_2_y
+_3_y
+_4_y
+_5_y
+_6_y
+_7_y
+_8_y
+_9_y
+
+10y
+11y
+12y
+13y
+14y
+15y
+16y
+17y
+10+y
+11+y
+12+y
+13+y
+14+y
+15+y
+16+y
+17+y
+10.y
+11.y
+12.y
+13.y
+14.y
+15.y
+16.y
+17.y
+10_y
+11_y
+12_y
+13_y
+14_y
+15_y
+16_y
+17_y
+10-y
+11-y
+12-y
+13-y
+14-y
+15-y
+16-y
+17-y
+10 y
+11 y
+12 y
+13 y
+14 y
+15 y
+16 y
+17 y
+
+ 1 años
+ 2 años
+ 3 años
+ 4 años
+ 5 años
+ 6 años
+ 7 años
+ 8 años
+ 9 años
+10 años
+11 años
+12 años
+13 años
+14 años
+15 años
+16 años
+17 años
+ 1años
+ 2años
+ 3años
+ 4años
+ 5años
+ 6años
+ 7años
+ 8años
+ 9años
+10años
+11años
+12años
+13años
+14años
+15años
+16años
+17años
+.1años
+.2años
+.3años
+.4años
+.5años
+.6años
+.7años
+.8años
+.9años
+.1.años
+.2.años
+.3.años
+.4.años
+.5.años
+.6.años
+.7.años
+.8.años
+.9.años
+10.años
+11.años
+12.años
+13.años
+14.años
+15.años
+16.años
+17.años
++1+años
++2+años
++3+años
++4+años
++5+años
++6+años
++7+años
++8+años
++9+años
+10+años
+11+años
+12+años
+13+años
+14+años
+15+años
+16+años
+17+años
+-1-años
+-2-años
+-3-años
+-4-años
+-5-años
+-6-años
+-7-años
+-8-años
+-9-años
+10-años
+11-años
+12-años
+13-años
+14-años
+15-años
+16-años
+17-años
+_1_años
+_2_años
+_3_años
+_4_años
+_5_años
+_6_años
+_7_años
+_8_años
+_9_años
+10_años
+11_años
+12_años
+13_años
+14_años
+15_años
+16_años
+17_años

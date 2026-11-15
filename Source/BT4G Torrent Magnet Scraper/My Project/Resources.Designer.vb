@@ -59,5 +59,21 @@ Namespace My.Resources
                 resourceCulture = value
             End Set
         End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        '''#                                                                   #
+        '''# MANDATORY FORBIDDEN KEYWORDS FILTER                               #
+        '''#                                                                   #
+        '''# This embedded resource enforces a strict, hardcoded filter to     #
+        '''# block illicit and strictly prohibited content from the scraper.   #
+        '''#                                                                   #
+        '''# If any of the [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Mandatory_Forbidden_Keywords() As String
+            Get
+                Return ResourceManager.GetString("Mandatory_Forbidden_Keywords", resourceCulture)
+            End Get
+        End Property
     End Module
 End Namespace
