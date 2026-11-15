@@ -3,7 +3,7 @@
 ## v1.2
 
 ### Security & Filtering 🛡️
-- Added a mandatory, hardcoded keyword filter (`Mandatory_Forbidden_Keywords`) embedded directly into the application assembly. This acts as a strict system-level blacklist to block illicit content from the scraper results, overriding any user rules.
+- Due to the unpredictable nature of torrent engine listings, added a mandatory, hardcoded keyword filter (`Mandatory_Forbidden_Keywords`) embedded directly into the application assembly. This acts as a strict system-level blacklist to block severely NSFW, illicit and criminally prohibited material (unrelated to music or movies copyright/DMCA), helping to ensure safe scraping independently, even when specific user-defined forbidden keyword rules are missing or incomplete.
 
 ### Bug fixes 🐞
 - Fixed a crash at startup when the optional `Forbidden Keywords.txt` file was missing (a warning was shown, but the file was read anyway).
